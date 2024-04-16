@@ -2,7 +2,7 @@
 //clang SDL_helper.c -o main -I/opt/homebrew/cellar/sdl2/2.28.4/include/sdl2 -L/opt/homebrew/cellar/sdl2/2.28.4/lib -lSDL2
 #include <SDL.h>
 #include <string.h>
-#include "Raster/rasterizer.h"
+#include "raster/rasterizer.h"
 #include "linearAlgebra/operations.h"
 
 
@@ -24,7 +24,7 @@ int main(int argc, char* argv[]){
     700, 500, 300, 1, // Vertex 3 (apex)
     };
 
-    vb.length = 18;
+    vb.length = 24;
     vb.vertices = verticesArray;
     framebuffer* fb = createFrameBuffer(1000, 700);
 
@@ -54,6 +54,10 @@ int main(int argc, char* argv[]){
     createTranslationMatrix(0.0, 0.0, 0.0, translationMatrix);
     createPerspectiveProjectionMatrix(60.0, 1.0, 100.0, 1000.0/700.0, perspectiveProjectionMatrix);
     
+    //the vertex buffer that is actually altered.
+    vertexBuffer* framevb = malloc(sizeof(vertexBuffer));
+    framevb->length = vb->length;
+    framevb->vertices = malloc(sizeof(float)* vb->length);
 
     int quit = 0;
     SDL_Event e;
@@ -72,16 +76,44 @@ int main(int argc, char* argv[]){
         if(keystate[SDL_SCANCODE_LSHIFT]){ y -= 0.1;}
         if(keystate[SDL_SCANCODE_SPACE]){ y += 0.1;}
 
+        //update matrices
+
         //linear operations
+        
 
+        for(int i = 0; i < framevb->length; i += 4){
+            vec4 temp;
+            temp.x = vb->vertices[i];
+            temp.y = vb->vertices[i + 1];
+            temp.z = vb->vertices[i + 2];
+            temp.w = vb->vertices[i + 3];
 
-        //build fram
-        rasterize(fb, )
+            vecByMatrix4x4(&temp, &translationMatrix);
+            vecByMatrix4x4(&temp, &rotationMatrix);
+            vecByMatrix4x4(&temp, &perspectiveProjectionMatrix);
+            
+            //perspective divide
+            temp.x = temp.x / temp.w;
+            temp.y = temp.y / temp.w;
+            temp.z = temp.z / temp.w;
+            
+            //create the temporary VBO
+            framevb->vertices[i] = temp.x;
+            framevb->vertices[i + 1] = temp.y;
+            framevb->vertices[i + 2] = temp.z;
+            //this in not necessary, consider removing
+            framevb->vertices[i + 3] = temp.w;
+        }
+
+        //build framebuffer
+        rasterize(fb, framevb);
+        
         SDL_UpdateTexture(texture, NULL, fb->pixels, fb->width * 3);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
     }
     deleteFrameBuffer(fb);
+    //dont forget to free the vertex buffers
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
