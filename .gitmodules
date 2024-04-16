@@ -1,0 +1,6 @@
+[submodule "linearAlgebra"]
+	path = linearAlgebra
+	url = https://github.com/HD787/linearAlgebra
+[submodule "raster"]
+	path = raster
+	url = https://github.com/HD787/Raster
