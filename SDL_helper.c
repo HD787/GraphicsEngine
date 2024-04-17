@@ -11,7 +11,7 @@ int main(int argc, char* argv[]){
     char* path = argv[1];
     //hardcoding option
     //rgbArray* vals = load();
-    vertexBuffer vb;
+    vertexBuffer* vb;
     static int verticesArray[] = {
     // Triangle 1
     400, 300, 200, 1, // Vertex 1
@@ -24,8 +24,8 @@ int main(int argc, char* argv[]){
     700, 500, 300, 1, // Vertex 3 (apex)
     };
 
-    vb.length = 24;
-    vb.vertices = verticesArray;
+    vb->length = 24;
+    vb->vertices = verticesArray;
     framebuffer* fb = createFrameBuffer(1000, 700);
 
     SDL_Window* window;    
@@ -59,6 +59,9 @@ int main(int argc, char* argv[]){
     framevb->length = vb->length;
     framevb->vertices = malloc(sizeof(float)* vb->length);
 
+    //movement variables
+    float mx, my, mz;
+
     int quit = 0;
     SDL_Event e;
     while(!quit){
@@ -69,12 +72,12 @@ int main(int argc, char* argv[]){
         }
         //input gathering
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
-        if(keystate[SDL_SCANCODE_W]){z += 0.1;}
-        if(keystate[SDL_SCANCODE_A]){x -= 0.1;}
-        if(keystate[SDL_SCANCODE_S]){z -= 0.1;}
-        if(keystate[SDL_SCANCODE_D]){x += 0.1;}
-        if(keystate[SDL_SCANCODE_LSHIFT]){ y -= 0.1;}
-        if(keystate[SDL_SCANCODE_SPACE]){ y += 0.1;}
+        if(keystate[SDL_SCANCODE_W]){mz += 0.1;}
+        if(keystate[SDL_SCANCODE_A]){mx -= 0.1;}
+        if(keystate[SDL_SCANCODE_S]){mz -= 0.1;}
+        if(keystate[SDL_SCANCODE_D]){mx += 0.1;}
+        if(keystate[SDL_SCANCODE_LSHIFT]){ my -= 0.1;}
+        if(keystate[SDL_SCANCODE_SPACE]){ my += 0.1;}
 
         //update matrices
 
@@ -88,9 +91,9 @@ int main(int argc, char* argv[]){
             temp.z = vb->vertices[i + 2];
             temp.w = vb->vertices[i + 3];
 
-            vecByMatrix4x4(&temp, &translationMatrix);
-            vecByMatrix4x4(&temp, &rotationMatrix);
-            vecByMatrix4x4(&temp, &perspectiveProjectionMatrix);
+            vecByMatrix4x4(&temp, translationMatrix);
+            vecByMatrix4x4(&temp, rotationMatrix);
+            vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
             
             //perspective divide
             temp.x = temp.x / temp.w;
