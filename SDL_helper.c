@@ -6,25 +6,24 @@
 #include "linearAlgebra/operations.h"
 
 
-int main(int argc, char* argv[]){
+int main(){
     SDL_Init(SDL_INIT_VIDEO);
-    char* path = argv[1];
+    //char* path = argv[1];
     //hardcoding option
     //rgbArray* vals = load();
-    vertexBuffer* vb;
+    vertexBuffer* vb = malloc(sizeof(vertexBuffer));
     static int verticesArray[] = {
-    // Triangle 1
-    400, 300, 200, 1, // Vertex 1
-    600, 300, 100, 1, // Vertex 2
-    500, 500, 300, 1, // Vertex 3 (apex)
 
-    // Triangle 2
-    600, 300, 200, 1, // Vertex 1 (shared with Triangle 1)
-    800, 300, 100, 1, // Vertex 2
-    700, 500, 300, 1, // Vertex 3 (apex)
+    400, 300, 200, // Vertex 1
+    600, 300, 100, // Vertex 2
+    500, 500, 300, // Vertex 3 (apex)
+
+    600, 300, 200, // Vertex 1 (shared with Triangle 1)
+    800, 300, 100, // Vertex 2
+    700, 500, 300  // Vertex 3 (apex)
     };
 
-    vb->length = 24;
+    vb->length = 18;
     vb->vertices = verticesArray;
     framebuffer* fb = createFrameBuffer(1000, 700);
 
@@ -50,17 +49,20 @@ int main(int argc, char* argv[]){
     SDL_UpdateTexture(texture, NULL, fb->pixels, fb->width * 3);
 
     matrix4x4 rotationMatrix, translationMatrix, perspectiveProjectionMatrix;
-    createRotationMatrixX(0.0, rotationMatrix);
+    createRotationMatrixY(60.0, rotationMatrix);
     createTranslationMatrix(0.0, 0.0, 0.0, translationMatrix);
     createPerspectiveProjectionMatrix(60.0, 1.0, 100.0, 1000.0/700.0, perspectiveProjectionMatrix);
     
     //the vertex buffer that is actually altered.
     vertexBuffer* framevb = malloc(sizeof(vertexBuffer));
     framevb->length = vb->length;
-    framevb->vertices = malloc(sizeof(float)* vb->length);
+    framevb->vertices = malloc(sizeof(int) * vb->length);
 
     //movement variables
-    float mx, my, mz;
+    float mx = 0;
+    float my = 0;
+    float mz = 0;
+    float angle = 0.0;
 
     int quit = 0;
     SDL_Event e;
@@ -72,48 +74,52 @@ int main(int argc, char* argv[]){
         }
         //input gathering
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
-        if(keystate[SDL_SCANCODE_W]){mz += 0.1;}
-        if(keystate[SDL_SCANCODE_A]){mx -= 0.1;}
-        if(keystate[SDL_SCANCODE_S]){mz -= 0.1;}
-        if(keystate[SDL_SCANCODE_D]){mx += 0.1;}
-        if(keystate[SDL_SCANCODE_LSHIFT]){ my -= 0.1;}
-        if(keystate[SDL_SCANCODE_SPACE]){ my += 0.1;}
-
+        if(keystate[SDL_SCANCODE_W]){mz += 1.0f;}
+        if(keystate[SDL_SCANCODE_A]){mx -= 1.0f;}
+        if(keystate[SDL_SCANCODE_S]){mz -= 1.0f;}
+        if(keystate[SDL_SCANCODE_D]){mx += 1.0f;}
+        if(keystate[SDL_SCANCODE_LSHIFT]){ my -= 1.0f;}
+        if(keystate[SDL_SCANCODE_SPACE]){ my += 1.0f;}
+        // if(keystate[SDL_SCANCODE_D]){angle += 0.1;}
+        // if(keystate[SDL_SCANCODE_A]){angle -= 0.1;}
         //update matrices
+        createTranslationMatrix(mx, my, mz, translationMatrix);
+        //createRotationMatrixY(angle, rotationMatrix);
+
 
         //linear operations
-        
-
-        for(int i = 0; i < framevb->length; i += 4){
+        for(int i = 0; i < framevb->length; i += 3){
             vec4 temp;
-            temp.x = vb->vertices[i];
-            temp.y = vb->vertices[i + 1];
-            temp.z = vb->vertices[i + 2];
-            temp.w = vb->vertices[i + 3];
-
+            temp.x = (float)vb->vertices[i];
+            temp.y = (float)vb->vertices[i + 1];
+            temp.z = (float)vb->vertices[i + 2];
+            temp.w = 1.0f;
+            //printf("old: %f, %f , %f\n", temp.x, temp.y, temp.z);
             vecByMatrix4x4(&temp, translationMatrix);
-            vecByMatrix4x4(&temp, rotationMatrix);
-            vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
+            //vecByMatrix4x4(&temp, rotationMatrix);
+            //printf("new: %f, %f , %f\n", temp.x, temp.y, temp.z);
+            //vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
             
             //perspective divide
-            temp.x = temp.x / temp.w;
-            temp.y = temp.y / temp.w;
-            temp.z = temp.z / temp.w;
+            // temp.x = temp.x / temp.w;
+            // temp.y = temp.y / temp.w;
+            // temp.z = temp.z / temp.w;
             
             //create the temporary VBO
-            framevb->vertices[i] = temp.x;
-            framevb->vertices[i + 1] = temp.y;
-            framevb->vertices[i + 2] = temp.z;
-            //this in not necessary, consider removing
-            framevb->vertices[i + 3] = temp.w;
+            framevb->vertices[i] = (int)(temp.x + 0.5f) ;
+            framevb->vertices[i + 1] = (int)(temp.y + 0.5f);
+            framevb->vertices[i + 2] = (int)(temp.z + 0.5f);
         }
 
         //build framebuffer
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);  // RGBA for black
+       
         rasterize(fb, framevb);
-        
         SDL_UpdateTexture(texture, NULL, fb->pixels, fb->width * 3);
+        SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
+        //SDL_Delay(30);
     }
     deleteFrameBuffer(fb);
     //dont forget to free the vertex buffers
