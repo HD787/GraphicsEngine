@@ -60,7 +60,7 @@ int main(){
 
     //movement variables
     float mx = 0;
-    float my = 0;
+    float my = -300;
     float mz = 0;
     float angle = 0.0;
 
