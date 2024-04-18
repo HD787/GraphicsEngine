@@ -59,8 +59,8 @@ int main(){
     framevb->vertices = malloc(sizeof(int) * vb->length);
 
     //movement variables
-    float mx = 0;
-    float my = -300;
+    float mx = 300;
+    float my = 0;
     float mz = 0;
     float angle = 0.0;
 
