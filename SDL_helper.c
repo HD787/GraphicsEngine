@@ -49,7 +49,7 @@ int main(){
     SDL_UpdateTexture(texture, NULL, fb->pixels, fb->width * 3);
 
     matrix4x4 rotationMatrix, translationMatrix, perspectiveProjectionMatrix;
-    createRotationMatrixY(60.0, rotationMatrix);
+    createRotationMatrixX(60.0, rotationMatrix);
     createTranslationMatrix(0.0, 0.0, 0.0, translationMatrix);
     createPerspectiveProjectionMatrix(60.0, 1.0, 100.0, 1000.0/700.0, perspectiveProjectionMatrix);
     
@@ -80,11 +80,11 @@ int main(){
         if(keystate[SDL_SCANCODE_D]){mx += 1.0f;}
         if(keystate[SDL_SCANCODE_LSHIFT]){ my -= 1.0f;}
         if(keystate[SDL_SCANCODE_SPACE]){ my += 1.0f;}
-        // if(keystate[SDL_SCANCODE_D]){angle += 0.1;}
-        // if(keystate[SDL_SCANCODE_A]){angle -= 0.1;}
+        if(keystate[SDL_SCANCODE_D]){angle += 0.1;}
+        if(keystate[SDL_SCANCODE_A]){angle -= 0.1;}
         //update matrices
         createTranslationMatrix(mx, my, mz, translationMatrix);
-        //createRotationMatrixY(angle, rotationMatrix);
+        createRotationMatrixX(angle, rotationMatrix);
 
 
         //linear operations
@@ -95,8 +95,8 @@ int main(){
             temp.z = (float)vb->vertices[i + 2];
             temp.w = 1.0f;
             //printf("old: %f, %f , %f\n", temp.x, temp.y, temp.z);
-            vecByMatrix4x4(&temp, translationMatrix);
-            //vecByMatrix4x4(&temp, rotationMatrix);
+            //vecByMatrix4x4(&temp, translationMatrix);
+            vecByMatrix4x4(&temp, rotationMatrix);
             //printf("new: %f, %f , %f\n", temp.x, temp.y, temp.z);
             //vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
             
