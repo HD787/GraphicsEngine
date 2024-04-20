@@ -3,7 +3,8 @@
 #include <SDL.h>
 #include <string.h>
 #include "raster/rasterizer.h"
-#include "linearAlgebra/operations.h"
+#include "3Dmath/operations.h"
+#include "graphicsEnginePrivateFunctions.h"
 
 
 int main(){
