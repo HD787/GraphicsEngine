@@ -2,13 +2,34 @@ void perspectiveDivide(float* vb){
     //this abstration really isn't a big deal but i think it makes sense
 }
 
-void generateNormals(vertexBuffer* vb){
-    for(int i = 0; i < vb->length; i+=3){
-        //take two the the vertices, convert to vec3s
-        //take cross product of said vec3s
-        //write result somewhere??
-        //the question is: "do you want to use interleved arrays or seperate arrays?"
-        //idk the answer at this time
+normalBuffer* generateNormals(vertexBuffer* vb){
+    normalBuffer* nb = malloc(sizeof(normalBuffer));
+    nb->length = vb->length;
+    nb->normals = malloc(sizeof(float) * nb->length);
+    for(int i = 0; i < vb->length; i+=9){
+        vec3 vec1;
+        vec3 vec2;
+        vec1.x = vb->vertices[i];
+        vec1.y = vb->vertices[i + 1];
+        vec1.z = vb->vertices[i + 2];
+
+        vec2.x = vb->vertices[i + 3];
+        vec2.y = vb->vertices[i + 4];
+        vec2.z = vb->vertices[i + 5];
+
+        vecResult = crossProduct(vec1, vec2);
+
+        nb->normals[i] = vecResult.x;
+        nb->normals[i + 1] = vecResult.y;
+        nb->normals[i + 2] = vecResult.z;
+
+        nb->normals[i + 3] = vecResult.x;
+        nb->normals[i + 4] = vecResult.y;
+        nb->normals[i + 5] = vecResult.z 
+
+        nb->normals[i + 6] = vecResult.x;
+        nb->normals[i + 7] = vecResult.y;
+        nb->normals[i + 8] = vecResult.z;
     }
 }
 
