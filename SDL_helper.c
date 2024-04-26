@@ -15,8 +15,8 @@ int main(){
     //rgbArray* vals = load();
     vertexBuffer* vb = malloc(sizeof(vertexBuffer));
 
-    vb->length = 9;
-    vb->vertices = normalizedtriangles;
+    vb->length = 108;
+    vb->vertices = normalizedCubeVertices;
     framebuffer* fb = createFrameBuffer(1000, 700);
 
     SDL_Window* window;    
@@ -55,7 +55,7 @@ int main(){
 
     //update matrices
     matrix4x4 rotationMatrix, translationMatrix, scalingMatrix, perspectiveProjectionMatrix, screenSpaceMatrix;
-    createPerspectiveProjectionMatrix(45.0, 0.1, 100.0, 1000.0/700.0, perspectiveProjectionMatrix);
+    createAlternatePerspectiveProjectionMatrix(45.0, 0.1, 100.0, 1000.0/700.0, perspectiveProjectionMatrix);
     createScalingMatrix(0.5f, scalingMatrix);
     createTranslationMatrix(mx, my, mz, translationMatrix);
     createRotationMatrixX(angle, rotationMatrix);
@@ -100,20 +100,21 @@ int main(){
             vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
 
             
+            // printf(" %f ", temp.w); 
             //perspective divide
-            if(temp.w > -1 || temp.w < 1){
-                temp.x /= temp.w;
-                temp.y /= temp.w;
-                temp.z /= temp.w;
-            }
-            // if(temp.z != 0){
-            //     temp.x /= temp.z;
-            //     temp.y /= temp.z;
-            // }
+            //clamp values to avoid dramatic results of dividing by values approaching 0
+            //if(temp.w < .01) temp.w = .01;
+            if(temp.w < 0.01 && temp.w > 0) temp.w = .01f;
+            if(temp.w > -0.01 && temp.w < 0) temp.w = -.01f;
+            if(temp.w < -.01) temp.w = fabsf(temp.w);
+            temp.x /= temp.w;
+            temp.y /= temp.w;
+            temp.z /= temp.w;
             temp.w = 1.0f;
+
             vecByMatrix4x4(&temp, screenSpaceMatrix);
+            printf(" %f \n", temp.z); 
             //printf(": %f, %f, %f :", temp.x, temp.y, temp.z);
-            //printf(" %f ", temp.z);
             //create the temporary VBO
             framevb->vertices[i] = temp.x;
             framevb->vertices[i + 1] = temp.y;
