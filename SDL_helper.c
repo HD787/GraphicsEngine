@@ -15,8 +15,8 @@ int main(){
     //rgbArray* vals = load();
     vertexBuffer* vb = malloc(sizeof(vertexBuffer));
 
-    vb->length = 9;
-    vb->vertices = normalizedTriangle;
+    vb->length = 108;
+    vb->vertices = normalizedCubeVertices;
     framebuffer* fb = createFrameBuffer(1000, 700);
 
     SDL_Window* window;    
@@ -29,7 +29,7 @@ int main(){
                                 SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                 fb->width, fb->height, 0);
    
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
     int format;
     format = SDL_PIXELFORMAT_RGB24;
     
@@ -54,11 +54,12 @@ int main(){
     float angle = 0.0;
 
     //update matrices
-    matrix4x4 rotationMatrix, translationMatrix, scalingMatrix, perspectiveProjectionMatrix;
-    //createPerspectiveProjectionMatrix(45.0, 0.1, 100.0, 1000.0/700.0, perspectiveProjectionMatrix);
+    matrix4x4 rotationMatrix, translationMatrix, scalingMatrix, perspectiveProjectionMatrix, screenSpaceMatrix;
+    createPerspectiveProjectionMatrix(45.0, 0.1, 100.0, 1000.0/700.0, perspectiveProjectionMatrix);
     createScalingMatrix(0.5f, scalingMatrix);
     createTranslationMatrix(mx, my, mz, translationMatrix);
     createRotationMatrixX(angle, rotationMatrix);
+    createNDCToScreenSpaceMatrix(1000, 700, screenSpaceMatrix);
 
     int quit = 0;
     SDL_Event e;
@@ -70,12 +71,12 @@ int main(){
         }
         //input gathering
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
-        if(keystate[SDL_SCANCODE_W]){mz += 0.01f;}
+        if(keystate[SDL_SCANCODE_W]){my += 0.01f;}
         if(keystate[SDL_SCANCODE_A]){mx -= 0.01f;}
-        if(keystate[SDL_SCANCODE_S]){mz -= 0.01f;}
+        if(keystate[SDL_SCANCODE_S]){my -= 0.01f;}
         if(keystate[SDL_SCANCODE_D]){mx += 0.01f;}
-        if(keystate[SDL_SCANCODE_LSHIFT]){ my -= 0.01f;}
-        if(keystate[SDL_SCANCODE_SPACE]){ my += 0.01f;}
+        if(keystate[SDL_SCANCODE_LSHIFT]){ mz -= 0.01f;}
+        if(keystate[SDL_SCANCODE_SPACE]){ mz += 0.01f;}
 
         // if(keystate[SDL_SCANCODE_D]){angle += 0.1;}
         // if(keystate[SDL_SCANCODE_A]){angle -= 0.1;}
@@ -96,22 +97,23 @@ int main(){
             //createRotationMatrix(angle, translationMatrix);
             
             //vecByMatrix4x4(&temp, rotationMatrix);
-            //vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
+            vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
 
             
             //perspective divide
-            // if(temp.w != 0){
-            //     temp.x /= temp.w;
-            //     temp.y /= temp.w;
-            //     temp.z /= temp.w;
-            // }
+            if(temp.w != 0){
+                temp.x /= temp.w;
+                temp.y /= temp.w;
+                temp.z /= temp.w;
+            }
             // if(temp.z != 0){
             //     temp.x /= temp.z;
             //     temp.y /= temp.z;
             // }
-            
+            temp.w = 1.0f;
+            vecByMatrix4x4(&temp, screenSpaceMatrix);
             //printf(": %f, %f, %f :", temp.x, temp.y, temp.z);
-            printf(" %f ", temp.z);
+            //printf(" %f ", temp.z);
             //create the temporary VBO
             framevb->vertices[i] = temp.x;
             framevb->vertices[i + 1] = temp.y;
@@ -119,11 +121,9 @@ int main(){
         }
 
         //build framebuffer
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);  // RGBA for black
        
         rasterize(fb, framevb);
         SDL_UpdateTexture(texture, NULL, fb->pixels, fb->width * 3);
-        SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
         //SDL_Delay(30);
