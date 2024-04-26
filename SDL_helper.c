@@ -15,8 +15,8 @@ int main(){
     //rgbArray* vals = load();
     vertexBuffer* vb = malloc(sizeof(vertexBuffer));
 
-    vb->length = 108;
-    vb->vertices = normalizedCubeVertices;
+    vb->length = 9;
+    vb->vertices = normalizedtriangles;
     framebuffer* fb = createFrameBuffer(1000, 700);
 
     SDL_Window* window;    
@@ -101,7 +101,7 @@ int main(){
 
             
             //perspective divide
-            if(temp.w != 0){
+            if(temp.w > -1 || temp.w < 1){
                 temp.x /= temp.w;
                 temp.y /= temp.w;
                 temp.z /= temp.w;
