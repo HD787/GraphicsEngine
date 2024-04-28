@@ -9,16 +9,23 @@
 
 
 int main(){
-    SDL_Init(SDL_INIT_VIDEO);
-    //char* path = argv[1];
-    //hardcoding option
-    //rgbArray* vals = load();
+
     vertexBuffer* vb = malloc(sizeof(vertexBuffer));
 
     vb->length = 108;
     vb->vertices = normalizedCubeVertices;
     framebuffer* fb = createFrameBuffer(1000, 700);
+    
+    //the vertex buffer that is actually altered.
+    vertexBuffer* framevb = malloc(sizeof(vertexBuffer));
+    framevb->length = vb->length;
+    framevb->vertices = malloc(sizeof(int) * vb->length);
 
+    normalBuffer* nb = generateNormals(vb);
+
+    /*START OF SDL BOILERPLATE*/
+
+    SDL_Init(SDL_INIT_VIDEO);
     SDL_Window* window;    
     if (fb->height > 2000){
     window = SDL_CreateWindow("Display Image",
@@ -40,12 +47,7 @@ int main(){
 
     SDL_UpdateTexture(texture, NULL, fb->pixels, fb->width * 3);
 
-    
-    
-    //the vertex buffer that is actually altered.
-    vertexBuffer* framevb = malloc(sizeof(vertexBuffer));
-    framevb->length = vb->length;
-    framevb->vertices = malloc(sizeof(int) * vb->length);
+    /*END OF SDL BOILERPLATE*/
 
     //movement variables
     float mx = 0;
@@ -55,7 +57,7 @@ int main(){
 
     //update matrices
     matrix4x4 rotationMatrix, translationMatrix, scalingMatrix, perspectiveProjectionMatrix, screenSpaceMatrix;
-    createAlternatePerspectiveProjectionMatrix(45.0, 0.1, 100.0, 1000.0/700.0, perspectiveProjectionMatrix);
+    createAlternatePerspectiveProjectionMatrix(45.0, 1.0, 10.0, 1000.0/700.0, perspectiveProjectionMatrix);
     createScalingMatrix(0.5f, scalingMatrix);
     createTranslationMatrix(mx, my, mz, translationMatrix);
     createRotationMatrixX(angle, rotationMatrix);
@@ -111,10 +113,10 @@ int main(){
             temp.y /= temp.w;
             temp.z /= temp.w;
             temp.w = 1.0f;
-
+            printf(" %f, %f, %f \n", temp.x, temp.y, temp.z); 
             vecByMatrix4x4(&temp, screenSpaceMatrix);
-            printf(" %f \n", temp.z); 
-            //printf(": %f, %f, %f :", temp.x, temp.y, temp.z);
+            //printf(" %f \n", temp.z); 
+            
             //create the temporary VBO
             framevb->vertices[i] = temp.x;
             framevb->vertices[i + 1] = temp.y;

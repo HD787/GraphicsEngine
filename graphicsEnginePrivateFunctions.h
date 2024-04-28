@@ -36,7 +36,7 @@ normalBuffer* generateNormals(vertexBuffer* vb){
 
 //might do this differently
 //may be better to just have a matrix associated with an obj
-void objectSpaceToWolrdSpace(vertexBuffer* vb, int scalar){
+void objectSpaceToWorldSpace(vertexBuffer* vb, int scalar){
     for(int i = 0; i< vb->length; i+= 3){
         vec4 temp;
         matrix4x4 mScalar;
@@ -50,5 +50,4 @@ void objectSpaceToWolrdSpace(vertexBuffer* vb, int scalar){
         vb->vertices[i + 1] = temp.y;
         vb->vertices[i + 2] = temp.z;
     }
-
 }
