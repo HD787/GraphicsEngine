@@ -4,24 +4,17 @@
 #include <string.h>
 #include "raster/rasterizer.h"
 #include "3Dmath/operations.h"
+#include "engineTypes.h"
 #include "graphicsEnginePrivateFunctions.h"
 #include "commonCoords.h"
 
 
 int main(){
 
-    vertexBuffer* vb = malloc(sizeof(vertexBuffer));
 
-    vb->length = 108;
-    vb->vertices = normalizedCubeVertices;
-    framebuffer* fb = createFrameBuffer(1000, 700);
+    frameBuffer* fb = createFrameBuffer(1000, 700);
     
-    //the vertex buffer that is actually altered.
-    vertexBuffer* framevb = malloc(sizeof(vertexBuffer));
-    framevb->length = vb->length;
-    framevb->vertices = malloc(sizeof(int) * vb->length);
 
-    normalBuffer* nb = generateNormals(vb);
 
     /*START OF SDL BOILERPLATE*/
 
@@ -49,6 +42,34 @@ int main(){
 
     /*END OF SDL BOILERPLATE*/
 
+    vertexBuffer* vb = malloc(sizeof(vertexBuffer));
+
+    vb->length = 108;
+    vb->vertices = normalizedCubeVertices;
+    mesh* mesh = malloc(sizeof(mesh));
+    mesh->vb = vb;
+    mesh->centroid = malloc(sizeof(vec3));
+    calculateCentroid(mesh);
+    normalBuffer* nb = generateNormals(vb);
+    colorBuffer* cb = malloc(sizeof(colorBuffer));
+    cb->colors = malloc(sizeof(byte) * vb->length);
+    cb->length = vb->length;
+    for(int i = 0; i < cb->length; i++) cb->colors[i] = 200;
+    vec3 light; light.x = -1; light.y = -1; light.z = 1;
+    
+
+
+    //this doesn't feel right
+    //alternative idea: some large vector that contains all of the vertices to be rendered
+    //looking back im not sure what i meant by this^
+    //the vertex buffer that is actually altered.
+    //normal can probably just be kept as a vector in the "vertex shader"
+    vertexBuffer* framevb = malloc(sizeof(vertexBuffer));
+    colorBuffer* framecb = malloc(sizeof(colorBuffer));
+    framecb->colors = malloc(sizeof(byte) * vb->length);
+    framevb->length = vb->length;
+    framevb->vertices = malloc(sizeof(int) * vb->length);
+
     //movement variables
     float mx = 0;
     float my = 0;
@@ -57,7 +78,7 @@ int main(){
 
     //update matrices
     matrix4x4 rotationMatrix, translationMatrix, scalingMatrix, perspectiveProjectionMatrix, screenSpaceMatrix;
-    createAlternatePerspectiveProjectionMatrix(45.0, 1.0, 10.0, 1000.0/700.0, perspectiveProjectionMatrix);
+    createPerspectiveProjectionMatrix(45.0, 1.0, 10.0, 1000.0/700.0, perspectiveProjectionMatrix);
     createScalingMatrix(0.5f, scalingMatrix);
     createTranslationMatrix(mx, my, mz, translationMatrix);
     createRotationMatrixX(angle, rotationMatrix);
@@ -80,40 +101,49 @@ int main(){
         if(keystate[SDL_SCANCODE_LSHIFT]){ mz -= 0.01f;}
         if(keystate[SDL_SCANCODE_SPACE]){ mz += 0.01f;}
 
-        // if(keystate[SDL_SCANCODE_D]){angle += 0.1;}
-        // if(keystate[SDL_SCANCODE_A]){angle -= 0.1;}
+        if(keystate[SDL_SCANCODE_E]){angle += 0.1;}
+        if(keystate[SDL_SCANCODE_F]){angle -= 0.1;}
         
-
-
+        color clr; clr.r = 200; clr.g = 200; clr.b = 200;
         //linear operations
         for(int i = 0; i < framevb->length; i += 3){
             vec4 temp;
-            temp.x = (float)vb->vertices[i];
-            temp.y = (float)vb->vertices[i + 1];
-            temp.z = (float)vb->vertices[i + 2];
+            temp.x = vb->vertices[i];
+            temp.y = vb->vertices[i + 1];
+            temp.z = vb->vertices[i + 2];
             temp.w = 1.0f;
+
+            vec3 normTemp;
+            normTemp.x = nb->normals[i];
+            normTemp.y = nb->normals[i + 1];
+            normTemp.z = nb->normals[i + 2];
+            normalizeVector(&normTemp);
+            float lightScalar = dotProduct(normTemp, light);
+            framecb->colors[i] = cb->colors[i] * lightScalar;
+            framecb->colors[i + 1] = cb->colors[i + 1] * lightScalar;
+            framecb->colors[i + 2] = cb->colors[i + 2] * lightScalar;
             //printf("old: %f, %f , %f\n", temp.x, temp.y, temp.z);
             createTranslationMatrix(mx, my, mz, translationMatrix);
+            createRotationMatrixX(angle, rotationMatrix);
+            vecByMatrix4x4(&temp, rotationMatrix);
             vecByMatrix4x4(&temp, translationMatrix);
+            
             //vecByMatrix4x4(&temp, scalingMatrix);
             //createRotationMatrix(angle, translationMatrix);
             
-            //vecByMatrix4x4(&temp, rotationMatrix);
+            
             vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
 
-            
             // printf(" %f ", temp.w); 
             //perspective divide
             //clamp values to avoid dramatic results of dividing by values approaching 0
-            //if(temp.w < .01) temp.w = .01;
-            if(temp.w < 0.01 && temp.w > 0) temp.w = .01f;
-            if(temp.w > -0.01 && temp.w < 0) temp.w = -.01f;
+            if(temp.w < 0.01 && temp.w > 0) temp.w = .009f;
+            if(temp.w > -0.01 && temp.w < 0) temp.w = -.009f;
             if(temp.w < -.01) temp.w = fabsf(temp.w);
             temp.x /= temp.w;
             temp.y /= temp.w;
             temp.z /= temp.w;
             temp.w = 1.0f;
-            printf(" %f, %f, %f \n", temp.x, temp.y, temp.z); 
             vecByMatrix4x4(&temp, screenSpaceMatrix);
             //printf(" %f \n", temp.z); 
             
@@ -125,7 +155,7 @@ int main(){
 
         //build framebuffer
        
-        rasterize(fb, framevb);
+        rasterize(fb, framevb, framecb);
         SDL_UpdateTexture(texture, NULL, fb->pixels, fb->width * 3);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);

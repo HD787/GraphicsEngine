@@ -34,6 +34,21 @@ normalBuffer* generateNormals(vertexBuffer* vb){
     return nb;
 }
 
+void calculateCentroid(mesh* m){
+    vertexBuffer* vb = m->vb;
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    for(int i = 0; i < vb->length; i += 3){
+        x += vb->vertices[i];
+        y += vb->vertices[i + 1];
+        z += vb->vertices[i + 2];
+    }
+    m->centroid->x = x / (vb->length /3);
+    m->centroid->y = y / (vb->length /3);
+    m->centroid->z = z / (vb->length /3);
+}
+
 //might do this differently
 //may be better to just have a matrix associated with an obj
 void objectSpaceToWorldSpace(vertexBuffer* vb, int scalar){
