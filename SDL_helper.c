@@ -125,12 +125,23 @@ int main(){
             normTemp.z = nb->normals[i + 2];
             normTemp.w = 1.0;
             createTranslationMatrix(mx, my, mz, translationMatrix);
-            createRotationMatrixX(angleX, rotationMatrixX);
-            createRotationMatrixY(angleY, rotationMatrixY);
-            vecByMatrix4x4(&temp, rotationMatrixX);
-            vecByMatrix4x4(&normTemp, rotationMatrixX);
-            vecByMatrix4x4(&temp, rotationMatrixY);
-            vecByMatrix4x4(&normTemp, rotationMatrixY);
+            quaternion quatX = createRotationQuaternion(angleX, 1, 0, 0);
+            quaternion quatY = createRotationQuaternion(angleY, 0, 1, 0);
+            quaternion compositeQuaternion = multiplyQuaternion(quatX, quatY);
+            vec3 tempdh = dehomogenizeVector(temp);
+            vec3 normTempdh = dehomogenizeVector(normTemp);
+            printf("\n%f\n", tempdh.x);
+            rotateVectorViaQuaternion(&tempdh, compositeQuaternion);
+            rotateVectorViaQuaternion(&normTempdh, compositeQuaternion);
+            printf("%f\n", tempdh.x);
+            temp = homogenizeVector(tempdh);
+            normTemp = homogenizeVector(normTempdh); 
+            //createRotationMatrixX(angleX, rotationMatrixX);
+            //createRotationMatrixY(angleY, rotationMatrixY);
+            // vecByMatrix4x4(&temp, rotationMatrixX);
+            // vecByMatrix4x4(&normTemp, rotationMatrixX);
+            // vecByMatrix4x4(&temp, rotationMatrixY);
+            // vecByMatrix4x4(&normTemp, rotationMatrixY);
 
             vecByMatrix4x4(&temp, translationMatrix);
             
