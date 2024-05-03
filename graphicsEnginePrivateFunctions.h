@@ -7,17 +7,31 @@ normalBuffer* generateNormals(vertexBuffer* vb){
     nb->length = vb->length;
     nb->normals = malloc(sizeof(float) * nb->length);
     for(int i = 0; i < vb->length; i+=9){
-        vec3 vec1;
-        vec3 vec2;
-        vec1.x = vb->vertices[i];
-        vec1.y = vb->vertices[i + 1];
-        vec1.z = vb->vertices[i + 2];
+        //and the naming scheme of vecX falls apart
+        vec3 v1, v2, v3, edge1, edge2;
+        v1.x = vb->vertices[i];
+        v1.y = vb->vertices[i + 1];
+        v1.z = vb->vertices[i + 2];
 
-        vec2.x = vb->vertices[i + 3];
-        vec2.y = vb->vertices[i + 4];
-        vec2.z = vb->vertices[i + 5];
+        v2.x = vb->vertices[i + 3];
+        v2.y = vb->vertices[i + 4];
+        v2.z = vb->vertices[i + 5];
 
-        vec3 vecResult = crossProduct(vec1, vec2);
+        v3.x = vb->vertices[i + 6];
+        v3.y = vb->vertices[i + 7];
+        v3.z = vb->vertices[i + 8];
+
+        edge1.x = v1.x - v2.x;
+        edge1.y = v1.y - v2.y;
+        edge1.z = v1.z - v2.z;
+
+        edge2.x = v3.x - v1.x;
+        edge2.y = v3.y - v1.y;
+        edge2.z = v3.z - v1.z;
+
+
+        vec3 vecResult = crossProduct(edge2, edge1);
+        normalizeVector(&vecResult);
 
         nb->normals[i] = vecResult.x;
         nb->normals[i + 1] = vecResult.y;
@@ -65,4 +79,10 @@ void objectSpaceToWorldSpace(vertexBuffer* vb, int scalar){
         vb->vertices[i + 1] = temp.y;
         vb->vertices[i + 2] = temp.z;
     }
+}
+
+int RGBClamp(float val){
+    if(val < 0) return 0;
+    if(val > 255) return 255;
+    return (int)val;
 }
