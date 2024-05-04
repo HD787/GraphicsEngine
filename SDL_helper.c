@@ -12,22 +12,16 @@
 int main(){
 
 
-    frameBuffer* fb = createFrameBuffer(1000, 700);
+    renderContext* rc = createRenderContext(1000, 700);
     
-
 
     /*START OF SDL BOILERPLATE*/
 
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window* window;    
-    if (fb->height > 2000){
     window = SDL_CreateWindow("Display Image",
                                 SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                1000, 700, 0);
-    }else
-    window = SDL_CreateWindow("Display Image",
-                                SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                fb->width, fb->height, 0);
+                                rc->width, rc->height, 0);
    
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
     int format;
@@ -35,10 +29,10 @@ int main(){
     
     SDL_Texture* texture = SDL_CreateTexture(renderer,
                                              format, SDL_TEXTUREACCESS_STREAMING,
-                                             fb->width, fb->height);
+                                             rc->width, rc->height);
     if(!texture){printf("%s", SDL_GetError()); return 0;}
 
-    SDL_UpdateTexture(texture, NULL, fb->pixels, fb->width * 3);
+    SDL_UpdateTexture(texture, NULL, rc->frameBuffer, rc->width * 3);
 
     /*END OF SDL BOILERPLATE*/
 
@@ -179,13 +173,13 @@ int main(){
 
         //build framebuffer
        
-        rasterize(fb, framevb, framecb);
-        SDL_UpdateTexture(texture, NULL, fb->pixels, fb->width * 3);
+        rasterize(rc, framevb, framecb);
+        SDL_UpdateTexture(texture, NULL, rc->frameBuffer, rc->width * 3);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
         //SDL_Delay(30);
     }
-    deleteFrameBuffer(fb);
+    deleteRenderContext(rc);
     //dont forget to free the vertex buffers
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
