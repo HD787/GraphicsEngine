@@ -4,12 +4,12 @@ void perspectiveDivide(float* vb){
 
 boundingBox* generateBoundingBox(vertexBuffer* vb){
     boundingBox* temp = malloc(sizeof(boundingBox));
-    temp->maxX = -1000000
-    temp->minX = -1000000
-    temp->maxY = -1000000
-    temp->minY = -1000000
-    temp->maxZ = -1000000
-    temp->minZ = -1000000
+    temp->maxX = -1000000;
+    temp->minX = -1000000;
+    temp->maxY = -1000000;
+    temp->minY = -1000000;
+    temp->maxZ = -1000000;
+    temp->minZ = -1000000;
     for(int i = 0; i < vb->length; i += 3){
         if(vb->vertices[i] > temp->maxX || temp->maxX == -1000000) temp->maxX = vb->vertices[i];
         if(vb->vertices[i] > temp->minX || temp->minX == -1000000) temp->minX = vb->vertices[i];
@@ -18,7 +18,7 @@ boundingBox* generateBoundingBox(vertexBuffer* vb){
         if(vb->vertices[i + 2] > temp->maxZ || temp->maxZ == -1000000) temp->maxZ = vb->vertices[i + 2];
         if(vb->vertices[i + 2] > temp->minZ || temp->minZ == -1000000) temp->minZ = vb->vertices[i + 2];
     }
-    return temp
+    return temp;
 }
 
 normalBuffer* generateNormals(vertexBuffer* vb){
@@ -108,4 +108,4 @@ int RGBClamp(float val){
 
 //not sure what this will look like yet
 //but its for frustum culling
-void frustumCheck()
+void frustumCheck(){}

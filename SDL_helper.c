@@ -124,10 +124,8 @@ int main(){
             quaternion compositeQuaternion = multiplyQuaternion(quatX, quatY);
             vec3 tempdh = dehomogenizeVector(temp);
             vec3 normTempdh = dehomogenizeVector(normTemp);
-            printf("\n%f\n", tempdh.x);
             rotateVectorViaQuaternion(&tempdh, compositeQuaternion);
             rotateVectorViaQuaternion(&normTempdh, compositeQuaternion);
-            printf("%f\n", tempdh.x);
             temp = homogenizeVector(tempdh);
             normTemp = homogenizeVector(normTempdh); 
             //createRotationMatrixX(angleX, rotationMatrixX);
