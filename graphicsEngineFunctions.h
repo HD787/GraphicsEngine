@@ -21,6 +21,29 @@ boundingBox* generateBoundingBox(vertexBuffer* vb){
     return temp;
 }
 
+scene* createScene(int size){
+    scene* temp = malloc(sizeof(scene));
+    temp->maxLength = size;
+    //temp->currentLength = 0;
+    temp->vertexBuffers = malloc(sizeof(vertexBuffer*) * temp->maxLength);
+    temp->normalBuffers = malloc(sizeof(normalBuffer*) * temp->maxLength);
+    temp->colorBuffers = malloc(sizeof(colorBuffer*) * temp->maxLength);
+    temp->indexBuffer = calloc(size, sizeof(char));
+    return temp;
+}
+
+void cleanScene(scene* sc){
+    //thinking i won't do this as its less efficient and the benefits are questionable
+    // for(int i = 0; i < sc-> currentLength; i++){
+    //     sc->vertexBuffers[i] = NULL;
+    //     sc->normalBuffers[i] = NULL;
+    //     sc->colorBuffers[i] = NULL;
+    // }
+    //sc->currentLength = 0;
+}
+
+
+
 normalBuffer* generateNormals(vertexBuffer* vb){
     normalBuffer* nb = malloc(sizeof(normalBuffer));
     nb->length = vb->length;
@@ -28,17 +51,17 @@ normalBuffer* generateNormals(vertexBuffer* vb){
     for(int i = 0; i < vb->length; i+=9){
         //and the naming scheme of vecX falls apart
         vec3 v1, v2, v3, edge1, edge2;
-        v1.x = vb->vertices[i];
-        v1.y = vb->vertices[i + 1];
-        v1.z = vb->vertices[i + 2];
+        v1.x = vb->inputVertices[i];
+        v1.y = vb->inputVertices[i + 1];
+        v1.z = vb->inputVertices[i + 2];
 
-        v2.x = vb->vertices[i + 3];
-        v2.y = vb->vertices[i + 4];
-        v2.z = vb->vertices[i + 5];
+        v2.x = vb->inputVertices[i + 3];
+        v2.y = vb->inputVertices[i + 4];
+        v2.z = vb->inputVertices[i + 5];
 
-        v3.x = vb->vertices[i + 6];
-        v3.y = vb->vertices[i + 7];
-        v3.z = vb->vertices[i + 8];
+        v3.x = vb->inputVertices[i + 6];
+        v3.y = vb->inputVertices[i + 7];
+        v3.z = vb->inputVertices[i + 8];
 
         edge1.x = v1.x - v2.x;
         edge1.y = v1.y - v2.y;
@@ -51,6 +74,7 @@ normalBuffer* generateNormals(vertexBuffer* vb){
 
         vec3 vecResult = crossProduct(edge2, edge1);
         normalizeVector(&vecResult);
+        printf("%f, %f, %f\n", v1.x, v1.y, v1.z);
 
         nb->normals[i] = vecResult.x;
         nb->normals[i + 1] = vecResult.y;
