@@ -31,6 +31,7 @@ scene* createScene(int size){
     temp->indexBuffer = calloc(size, sizeof(char));
     return temp;
 }
+void deleteScene(scene* sc){}
 
 void cleanScene(scene* sc){
     //thinking i won't do this as its less efficient and the benefits are questionable
@@ -74,7 +75,6 @@ normalBuffer* generateNormals(vertexBuffer* vb){
 
         vec3 vecResult = crossProduct(edge2, edge1);
         normalizeVector(&vecResult);
-        printf("%f, %f, %f\n", v1.x, v1.y, v1.z);
 
         nb->normals[i] = vecResult.x;
         nb->normals[i + 1] = vecResult.y;
@@ -124,10 +124,29 @@ void objectSpaceToWorldSpace(vertexBuffer* vb, int scalar){
     }
 }
 
+void clampW(vec4* v){
+    if(v->w < 0.5f && v->w > 0) v->w = 0.5f;
+    if(v->w < 0) v->w = 1.0f;
+}
+
 int RGBClamp(float val){
     if(val < 0) return 0;
     if(val > 255) return 255;
     return (int)val;
+}
+
+void vertexBufferByMatrix(vertexBuffer* vb, matrix4x4 matrix){
+    for(int i = 0; i < vb->length; i += 3){
+        vec4 temp;
+        temp.x = vb->inputVertices[i];
+        temp.y = vb->inputVertices[i + 1];
+        temp.z = vb->inputVertices[i + 2];
+        temp.w = 1.0;
+        vecByMatrix4x4(&temp, matrix);
+        vb->inputVertices[i] = temp.x;
+        vb->inputVertices[i + 1] = temp.y;
+        vb->inputVertices[i + 2] = temp.z;
+    }
 }
 
 //not sure what this will look like yet
