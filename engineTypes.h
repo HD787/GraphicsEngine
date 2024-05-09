@@ -7,14 +7,6 @@ typedef struct{
     float minZ;
 }boundingBox;
 
-typedef struct{
-    vertexBuffer** vertexBuffers;
-    colorBuffer** colorBuffers;
-    normalBuffer** normalBuffers;
-    char* indexBuffer;
-    int maxLength;
-    //int currentLength;
-} scene;
 
 //idk about this one atm
 typedef struct{
@@ -22,7 +14,15 @@ typedef struct{
     colorBuffer* cb;
     normalBuffer* nb;
     vec3* centroid;
+    boundingBox* bb;
     //this could be useful but also lowkey we can just rotate before translating a lot of the time
     matrix4x4 worldSpaceMatrix;
-    boundingBox bb;
 }mesh;
+
+typedef struct{
+    mesh** meshes;
+    char* indexBuffer;
+    vec3* cameraVector;
+    int length;
+    //int currentLength;
+}scene;

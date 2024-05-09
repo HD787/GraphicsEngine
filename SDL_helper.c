@@ -43,6 +43,7 @@ int main(){
     normalBuffer* nb0 = generateNormals(vb0);
     colorBuffer* cb0 = createColorBuffer(108);
     for(int i = 0; i < cb0->length; i++) cb0->inputColors[i] = 127;
+    mesh* mesh0 = meshify(vb0, cb0, nb0);
 
     //cube2
     vertexBuffer* vb1 = createVertexBuffer(108);
@@ -53,6 +54,7 @@ int main(){
     normalBuffer* nb1 = generateNormals(vb1);
     colorBuffer* cb1 = createColorBuffer(108);
     for(int i = 0; i < cb1->length; i++) cb1->inputColors[i] = 127;
+    mesh* mesh1 = meshify(vb1, cb1, nb1);
 
     //cube3
     vertexBuffer* vb2 = createVertexBuffer(108);
@@ -62,22 +64,17 @@ int main(){
     normalBuffer* nb2 = generateNormals(vb2);
     colorBuffer* cb2 = createColorBuffer(108);
     for(int i = 0; i < cb2->length; i++) cb2->inputColors[i] = 127;
+    mesh* mesh2 = meshify(vb2, cb2, nb2);
 
     //lighting vector
     vec3 light; light.x = 0; light.y = 0; light.z = 1;
     
+    //scene
     scene* sc = createScene(3);
-    sc->vertexBuffers[0] = vb0;
-    sc->colorBuffers[0] =  cb0;
-    sc->normalBuffers[0] = nb0;
+    sc->meshes[0] = mesh0;
+    sc->meshes[1] = mesh1;
+    sc->meshes[2] = mesh2;
 
-    sc->vertexBuffers[1] = vb1;
-    sc->colorBuffers[1] =  cb1;
-    sc->normalBuffers[1] = nb1;
-
-    sc->vertexBuffers[2] = vb2;
-    sc->colorBuffers[2] =  cb2;
-    sc->normalBuffers[2] = nb2;
     //movement variables
     float mx = 0;
     float my = 0;
@@ -104,9 +101,9 @@ int main(){
         }
         //input gathering
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
-        if(keystate[SDL_SCANCODE_W]){my += 0.2f;}
+        if(keystate[SDL_SCANCODE_S]){my += 0.2f;}
         if(keystate[SDL_SCANCODE_A]){mx -= 0.2f;}
-        if(keystate[SDL_SCANCODE_S]){my -= 0.2f;}
+        if(keystate[SDL_SCANCODE_W]){my -= 0.2f;}
         if(keystate[SDL_SCANCODE_D]){mx += 0.2f;}
         if(keystate[SDL_SCANCODE_LSHIFT]){ mz -= 0.2f;}
         if(keystate[SDL_SCANCODE_SPACE]){ mz += 0.2f;}
@@ -118,11 +115,14 @@ int main(){
 
         
         //linear operations
-        for(int j = 0; j < sc->maxLength; j++){
-            vertexBuffer* vb = sc->vertexBuffers[j];
-            colorBuffer* cb = sc->colorBuffers[j];
-            normalBuffer* nb = sc->normalBuffers[j];
+        for(int j = 0; j < sc->length; j++){
+            vertexBuffer* vb = sc->meshes[j]->vb;
+            colorBuffer* cb = sc->meshes[j]->cb;
+            normalBuffer* nb = sc->meshes[j]->nb;
+            //im guessing that using the index buffer will be better architecture;
+            int renderFlag = 0;
             for(int i = 0; i < vb->length; i += 3){
+                
                 vec4 temp;
                 temp.x = vb->inputVertices[i];
                 temp.y = vb->inputVertices[i + 1];
@@ -134,7 +134,7 @@ int main(){
                 normTemp.x = nb->normals[i];
                 normTemp.y = nb->normals[i + 1];
                 normTemp.z = nb->normals[i + 2];
-                //printf("%f, %f, %f\n", normTemp.x, normTemp.y, normTemp.z);
+                
                 createTranslationMatrix(mx, my, mz, translationMatrix);
                 quaternion quatX = createRotationQuaternion(angleX, 1, 0, 0);
                 quaternion quatY = createRotationQuaternion(angleY, 0, 1, 0);
@@ -142,6 +142,7 @@ int main(){
                 vec3 tempdh = dehomogenizeVector(temp);
                 rotateVectorViaQuaternion(&tempdh, compositeQuaternion);
                 rotateVectorViaQuaternion(&normTemp, compositeQuaternion);
+
                 temp = homogenizeVector(tempdh);
 
                 vecByMatrix4x4(&temp, translationMatrix);
@@ -149,13 +150,18 @@ int main(){
                 normalizeVector(&normTemp);
                 float lightScalar = dotProduct(normTemp, light);
                 lightScalar += 1;
+                if(dotProduct(normTemp, *sc->cameraVector) < -0.2){
+                    vb->indexBuffer[i/3] = 0;
+                    //printf("here");
+                }else vb->indexBuffer[i/3] = 1;
                 //printf("%d", RGBClamp(cb->inputColors[i] * lightScalar));
                 cb->colors[i] = RGBClamp(cb->inputColors[i] * lightScalar);
                 cb->colors[i + 1] = RGBClamp(cb->inputColors[i + 1] * lightScalar);
                 cb->colors[i + 2] = RGBClamp(cb->inputColors[i + 2] * lightScalar);
                 
                 vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
-
+                renderFlag = frustumCheck(sc->meshes[j]);
+                // printf("%f, %f, %f\n", temp.x, temp.y, temp.z);
                 //perspective divide
                 
                 clampW(&temp);
@@ -173,6 +179,7 @@ int main(){
                 //printf("%f\n", temp.z);
                 //printf("%i, %d, %d\n", cb->inputColors[i], cb->inputColors[i + 1], cb->inputColors[i + 2]);
             }
+            if(renderFlag == 0)
             rasterize(rc, vb, cb);
         }       
         

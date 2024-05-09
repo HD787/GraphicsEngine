@@ -1,7 +1,3 @@
-void perspectiveDivide(float* vb){
-    //this abstration really isn't a big deal but i think it makes sense
-}
-
 boundingBox* generateBoundingBox(vertexBuffer* vb){
     boundingBox* temp = malloc(sizeof(boundingBox));
     temp->maxX = -1000000;
@@ -21,14 +17,37 @@ boundingBox* generateBoundingBox(vertexBuffer* vb){
     return temp;
 }
 
+void generateBoundingBoxDEPRECATED(mesh* msh){
+    vertexBuffer* vb = msh->vb;
+    boundingBox* temp = malloc(sizeof(boundingBox));
+    temp->maxX = -1000000;
+    temp->minX = -1000000;
+    temp->maxY = -1000000;
+    temp->minY = -1000000;
+    temp->maxZ = -1000000;
+    temp->minZ = -1000000;
+    for(int i = 0; i < vb->length; i += 3){
+        if(vb->vertices[i] > temp->maxX || temp->maxX == -1000000) temp->maxX = vb->vertices[i];
+        if(vb->vertices[i] > temp->minX || temp->minX == -1000000) temp->minX = vb->vertices[i];
+        if(vb->vertices[i + 1] > temp->maxY || temp->maxY == -1000000) temp->maxY = vb->vertices[i + 1];
+        if(vb->vertices[i + 1] > temp->minY || temp->minY == -1000000) temp->minY = vb->vertices[i + 1];
+        if(vb->vertices[i + 2] > temp->maxZ || temp->maxZ == -1000000) temp->maxZ = vb->vertices[i + 2];
+        if(vb->vertices[i + 2] > temp->minZ || temp->minZ == -1000000) temp->minZ = vb->vertices[i + 2];
+    }
+    msh->bb = temp;
+}
+
+
 scene* createScene(int size){
     scene* temp = malloc(sizeof(scene));
-    temp->maxLength = size;
-    //temp->currentLength = 0;
-    temp->vertexBuffers = malloc(sizeof(vertexBuffer*) * temp->maxLength);
-    temp->normalBuffers = malloc(sizeof(normalBuffer*) * temp->maxLength);
-    temp->colorBuffers = malloc(sizeof(colorBuffer*) * temp->maxLength);
+    temp->length = size;
+    temp->meshes = malloc(sizeof(mesh*) * temp->length);
     temp->indexBuffer = calloc(size, sizeof(char));
+    vec3* vec = malloc(sizeof(vec3));
+    vec->x = 0;
+    vec->y = 0;
+    vec->z = 1;
+    temp->cameraVector = vec;
     return temp;
 }
 void deleteScene(scene* sc){}
@@ -149,6 +168,19 @@ void vertexBufferByMatrix(vertexBuffer* vb, matrix4x4 matrix){
     }
 }
 
+mesh* meshify(vertexBuffer* vb, colorBuffer* cb, normalBuffer* nb){
+    mesh* temp = malloc(sizeof(mesh));
+    temp->vb = vb;
+    temp->cb = cb;
+    temp->nb = nb;
+    temp->bb = generateBoundingBox(vb);
+    return temp;
+}
+
 //not sure what this will look like yet
 //but its for frustum culling
-void frustumCheck(){}
+int frustumCheck(mesh* msh){
+    boundingBox* bb = msh->bb;
+    if(bb->maxZ < 0 && bb->maxZ < 0) return 1;
+    return 0;
+}
