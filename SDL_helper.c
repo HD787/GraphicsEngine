@@ -161,7 +161,7 @@ int main(){
                 
                 vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
                 renderFlag = frustumCheck(sc->meshes[j]);
-                // printf("%f, %f, %f\n", temp.x, temp.y, temp.z);
+                //printf("%f, %f, %f\n", temp.x, temp.y, temp.z);
                 //perspective divide
                 
                 clampW(&temp);

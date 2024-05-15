@@ -38,29 +38,7 @@ void generateBoundingBoxDEPRECATED(mesh* msh){
 }
 
 
-scene* createScene(int size){
-    scene* temp = malloc(sizeof(scene));
-    temp->length = size;
-    temp->meshes = malloc(sizeof(mesh*) * temp->length);
-    temp->indexBuffer = calloc(size, sizeof(char));
-    vec3* vec = malloc(sizeof(vec3));
-    vec->x = 0;
-    vec->y = 0;
-    vec->z = 1;
-    temp->cameraVector = vec;
-    return temp;
-}
-void deleteScene(scene* sc){}
 
-void cleanScene(scene* sc){
-    //thinking i won't do this as its less efficient and the benefits are questionable
-    // for(int i = 0; i < sc-> currentLength; i++){
-    //     sc->vertexBuffers[i] = NULL;
-    //     sc->normalBuffers[i] = NULL;
-    //     sc->colorBuffers[i] = NULL;
-    // }
-    //sc->currentLength = 0;
-}
 
 
 
@@ -175,6 +153,47 @@ mesh* meshify(vertexBuffer* vb, colorBuffer* cb, normalBuffer* nb){
     temp->nb = nb;
     temp->bb = generateBoundingBox(vb);
     return temp;
+}
+
+void deleteMesh(mesh msh){
+    deleteColorBuffer(msh->cb);
+    deleteVertexBuffer(msh->vb);
+    free(msh->nb->normals);
+    free(msh->nb);
+    free(msh);
+}
+
+
+scene* createScene(int size){
+    scene* temp = malloc(sizeof(scene));
+    temp->length = size;
+    temp->meshes = malloc(sizeof(mesh*) * temp->length);
+    temp->indexBuffer = calloc(size, sizeof(char));
+    vec3* vec = malloc(sizeof(vec3));
+    vec->x = 0;
+    vec->y = 0;
+    vec->z = 1;
+    temp->cameraVector = vec;
+    return temp;
+}
+void deleteScene(scene* sc){
+    free(sc->cameraVector);
+    free(sc->indexBuffer);
+    for(int i = 0; i < sc->length; i++){
+        delete(sc->meshes[i]);
+    }
+    free(sc->meshes);
+    free(sc);
+}
+
+void cleanScene(scene* sc){
+    //thinking i won't do this as its less efficient and the benefits are questionable
+    // for(int i = 0; i < sc-> currentLength; i++){
+    //     sc->vertexBuffers[i] = NULL;
+    //     sc->normalBuffers[i] = NULL;
+    //     sc->colorBuffers[i] = NULL;
+    // }
+    //sc->currentLength = 0;
 }
 
 //not sure what this will look like yet
