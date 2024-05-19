@@ -78,17 +78,21 @@ int main(){
     //movement variables
     float mx = 0;
     float my = 0;
-    float mz = -5;
+    float mz = 0;
     float angleX = 0.0;
     float angleY = 0.0;
+    float angleZ = 0.0;
 
     //update matrices
-    matrix4x4 rotationMatrixX, rotationMatrixY, translationMatrix, scalingMatrix, perspectiveProjectionMatrix, screenSpaceMatrix;
+    matrix4x4 rotationMatrixX, rotationMatrixY, rotationMatrixZ, translationMatrix, scalingMatrix, perspectiveProjectionMatrix, screenSpaceMatrix;
+    matrix4x4 rodMatrix;
+    createRotationMatrix(0.0, 0.0, 0.0, 0.0, rodMatrix);
     createPerspectiveProjectionMatrix(45.0, 1.0, 10.0, 1000.0/700.0, perspectiveProjectionMatrix);
     createScalingMatrix(0.5f, scalingMatrix);
-    createTranslationMatrix(mx, my, mz, translationMatrix);
-    createRotationMatrixY(angleY, rotationMatrixY);
-    createRotationMatrixX(angleX, rotationMatrixX);
+    // createTranslationMatrix(mx, my, mz, translationMatrix);
+    // createRotationMatrixX(angleX, rotationMatrixX);
+    // createRotationMatrixY(angleY, rotationMatrixY);
+    // createRotationMatrixZ(angleZ, rotationMatrixZ);
     createNDCToScreenSpaceMatrix(1000, 700, screenSpaceMatrix);
 
     int quit = 0;
@@ -108,11 +112,12 @@ int main(){
         if(keystate[SDL_SCANCODE_LSHIFT]){ mz -= 0.2f;}
         if(keystate[SDL_SCANCODE_SPACE]){ mz += 0.2f;}
 
-        if(keystate[SDL_SCANCODE_E]){angleX += 1.5;}
-        if(keystate[SDL_SCANCODE_F]){angleX -= 1.5;}
-        if(keystate[SDL_SCANCODE_R]){angleY += 1.5;}
-        if(keystate[SDL_SCANCODE_G]){angleY -= 1.5;}
-
+        if(keystate[SDL_SCANCODE_E]){angleX += 1.0;}
+        if(keystate[SDL_SCANCODE_F]){angleX -= 1.0;}
+        if(keystate[SDL_SCANCODE_R]){angleY += 1.0;}
+        if(keystate[SDL_SCANCODE_G]){angleY -= 1.0;}
+        if(keystate[SDL_SCANCODE_T]){angleZ += 1.0;}
+        if(keystate[SDL_SCANCODE_H]){angleZ -= 1.0;}
         
         //linear operations
         for(int j = 0; j < sc->length; j++){
@@ -130,23 +135,20 @@ int main(){
                 temp.w = 1.0f;
 
                 //not ideal that this has to be a vec4
-                vec3 normTemp;
-                normTemp.x = nb->normals[i];
-                normTemp.y = nb->normals[i + 1];
-                normTemp.z = nb->normals[i + 2];
-                
+                vec4 normTempH;
+                normTempH.x = nb->normals[i];
+                normTempH.y = nb->normals[i + 1];
+                normTempH.z = nb->normals[i + 2];
+                normTempH.w = 0.0;
+                createRotationMatrix(90.0, angleX, angleY, angleZ, rodMatrix);
+                printf("%f, %f, %f\n", angleX, angleY, angleZ);
+                vecByMatrix4x4(&temp, rodMatrix);
+                vecByMatrix4x4(&normTempH, rodMatrix);
+
                 createTranslationMatrix(mx, my, mz, translationMatrix);
-                quaternion quatX = createRotationQuaternion(angleX, 1, 0, 0);
-                quaternion quatY = createRotationQuaternion(angleY, 0, 1, 0);
-                quaternion compositeQuaternion = multiplyQuaternion(quatX, quatY);
-                vec3 tempdh = dehomogenizeVector(temp);
-                rotateVectorViaQuaternion(&tempdh, compositeQuaternion);
-                rotateVectorViaQuaternion(&normTemp, compositeQuaternion);
-
-                temp = homogenizeVector(tempdh);
-
                 vecByMatrix4x4(&temp, translationMatrix);
-
+                
+                vec3 normTemp = dehomogenizeVector(normTempH);
                 normalizeVector(&normTemp);
                 float lightScalar = dotProduct(normTemp, light);
                 lightScalar += 1;
@@ -161,7 +163,7 @@ int main(){
                 
                 vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
                 renderFlag = frustumCheck(sc->meshes[j]);
-                //printf("%f, %f, %f\n", temp.x, temp.y, temp.z);
+                
                 //perspective divide
                 
                 clampW(&temp);

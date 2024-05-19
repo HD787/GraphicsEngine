@@ -4,3 +4,6 @@
 [submodule "raster"]
 	path = raster
 	url = https://github.com/HD787/Raster
+[submodule "OBJParser"]
+	path = OBJParser
+	url = https://github.com/HD787/OBJParser

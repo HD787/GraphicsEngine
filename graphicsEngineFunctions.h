@@ -155,7 +155,7 @@ mesh* meshify(vertexBuffer* vb, colorBuffer* cb, normalBuffer* nb){
     return temp;
 }
 
-void deleteMesh(mesh msh){
+void deleteMesh(mesh* msh){
     deleteColorBuffer(msh->cb);
     deleteVertexBuffer(msh->vb);
     free(msh->nb->normals);
@@ -180,7 +180,7 @@ void deleteScene(scene* sc){
     free(sc->cameraVector);
     free(sc->indexBuffer);
     for(int i = 0; i < sc->length; i++){
-        delete(sc->meshes[i]);
+        deleteMesh(sc->meshes[i]);
     }
     free(sc->meshes);
     free(sc);
