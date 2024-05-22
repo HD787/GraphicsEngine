@@ -77,7 +77,7 @@ int main(){
     matrix4x4 rotationMatrixX, rotationMatrixY, rotationMatrixZ, translationMatrix, scalingMatrix, perspectiveProjectionMatrix, screenSpaceMatrix;
     matrix4x4 rodMatrix;
     createRotationMatrix(0.0, 0.0, 0.0, 0.0, rodMatrix);
-    createPerspectiveProjectionMatrix(45.0, 1.0, 100.0, 1000.0/700.0, perspectiveProjectionMatrix);
+    createPerspectiveProjectionMatrix(45.0, 1.0, 10.0, 1000.0/700.0, perspectiveProjectionMatrix);
     createScalingMatrix(0.5f, scalingMatrix);
     createTranslationMatrix(mx, my, mz, translationMatrix);
     createRotationMatrixX(angleX, rotationMatrixX);
@@ -158,24 +158,17 @@ int main(){
                 
                 //vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
 
-                printf("%f ", temp.z); 
                 perspectiveProjection(&temp, perspectiveProjectionMatrix);
-                //printf("%f\n", temp.z);
                 renderFlag = frustumCheck(sc->meshes[j]);
-                printf("%f ", temp.z);
                 perspectiveDivide(&temp);
-                printf("%f ", temp.z);
                 NDCToScreenSpace(&temp, 1.0, 100.0, 700, 1000);
-                printf("%f\n", temp.z);
-                //expandDepthRange(&temp, -1.0f, 2.0f);
                 //vecByMatrix4x4(&temp, screenSpaceMatrix);
                 
                 //create the temporary VBO
                 vb->vertices[i] = temp.x;
                 vb->vertices[i + 1] = temp.y;
-                vb->vertices[i + 2] = temp.z;
-                //printf("%f\n", temp.z);
-                //printf("%i, %d, %d\n", cb->inputColors[i], cb->inputColors[i + 1], cb->inputColors[i + 2]);
+                //we are now w-buffering, maybe a more thorough implementation
+                vb->vertices[i + 2] = temp.w;
             }
             if(renderFlag == 0)
             rasterize(rc, vb, cb);
