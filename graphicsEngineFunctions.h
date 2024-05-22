@@ -98,9 +98,9 @@ void calculateCentroid(mesh* m){
         y += vb->vertices[i + 1];
         z += vb->vertices[i + 2];
     }
-    m->centroid->x = x / (vb->length /3);
-    m->centroid->y = y / (vb->length /3);
-    m->centroid->z = z / (vb->length /3);
+    m->centroid->x = x / (vb->length / 3);
+    m->centroid->y = y / (vb->length / 3);
+    m->centroid->z = z / (vb->length / 3);
 }
 
 //might do this differently
@@ -109,21 +109,75 @@ void objectSpaceToWorldSpace(vertexBuffer* vb, int scalar){
     for(int i = 0; i< vb->length; i+= 3){
         vec4 temp;
         matrix4x4 mScalar;
-        temp.x = vb->vertices[i];
-        temp.y = vb->vertices[i + 1];
-        temp.z = vb->vertices[i + 2];
+        temp.x = vb->inputVertices[i];
+        temp.y = vb->inputVertices[i + 1];
+        temp.z = vb->inputVertices[i + 2];
         temp.w = 1;
         createScalingMatrix(scalar, mScalar);
         vecByMatrix4x4(&temp, mScalar);
-        vb->vertices[i] = temp.x;
-        vb->vertices[i + 1] = temp.y;
-        vb->vertices[i + 2] = temp.z;
+        vb->inputVertices[i] = temp.x;
+        vb->inputVertices[i + 1] = temp.y;
+        vb->inputVertices[i + 2] = temp.z;
     }
 }
 
 void clampW(vec4* v){
     if(v->w < 0.5f && v->w > 0) v->w = 0.5f;
     if(v->w < 0) v->w = 1.0f;
+}
+
+void perspectiveProjection(vec4* v, matrix4x4 matrix){
+    vec4 temp = *v;
+    vecByMatrix4x4(v, matrix);
+    // if(v->z < 0){
+    //     v->x = temp.x;
+    //     v->y = temp.y;
+    // }
+}
+
+void perspectiveDivide(vec4* v){
+    // if(v->w < 0.5f && v->w > 0){
+    //     // v->w = 0.5f;
+    //     // v->z /= v->w;
+    //     // v->w = 1.0f;
+    //     // return;
+    //     v->w -= 1.5;
+    //     v->z /= fabsf(v->w);
+    //     printf("one");
+    //     return;
+    // }
+    // if(v->w < 0 && v->w > -1.0) {
+    //     printf("two");
+    //     v->w -= 1.5f;
+    //     v->z /= fabsf(v->w); 
+    //     return;
+    // }
+    if(v->w < 0.5f && v->w > -1.0){
+        v->w -= 1.6f;
+        v->z -= 1.6f;
+        //v->z /= fabsf(v->w); 
+        //return; 
+    }
+    if(v->w < 0) {
+        //v->x /= v->w;
+        v->x /= v->w;
+        v->w = fabsf(v->w);
+        v->y /= v->w;
+        
+        v->z /= v->w; 
+        return;
+    }
+    v->x /= v->w;
+    v->y /= v->w;
+    v->z /= v->w;
+    v->w = 1.0f;
+
+}
+
+void NDCToScreenSpace(vec4* v, float nearPlane, float farPlane, int height, int width){
+    v->x = ((v->x + 1) * width) / 2;
+    v->y = ((v->y + 1) * height) / 2;
+    v->z = ((v->z + 1) * (farPlane - nearPlane) / 2) + nearPlane;
 }
 
 int RGBClamp(float val){
@@ -152,6 +206,7 @@ mesh* meshify(vertexBuffer* vb, colorBuffer* cb, normalBuffer* nb){
     temp->cb = cb;
     temp->nb = nb;
     temp->bb = generateBoundingBox(vb);
+    temp->centroid = malloc(sizeof(vec3));
     return temp;
 }
 
