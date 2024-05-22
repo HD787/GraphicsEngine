@@ -167,8 +167,9 @@ int main(){
                 //create the temporary VBO
                 vb->vertices[i] = temp.x;
                 vb->vertices[i + 1] = temp.y;
-                //we are now w-buffering, maybe a more thorough implementation
+                //we are now w-buffering, maybe a more thorough implementation would be good
                 vb->vertices[i + 2] = temp.w;
+                printf("%f\n", temp.w);
             }
             if(renderFlag == 0)
             rasterize(rc, vb, cb);
