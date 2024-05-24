@@ -113,8 +113,6 @@ int main(){
             vertexBuffer* vb = sc->meshes[j]->vb;
             colorBuffer* cb = sc->meshes[j]->cb;
             normalBuffer* nb = sc->meshes[j]->nb;
-            //this is still used in frustum culling, please change
-            int renderFlag = 0;
             for(int i = 0; i < vb->length; i += 3){
                 
                 vec4 temp;
@@ -124,7 +122,6 @@ int main(){
                 
                 temp.w = 1.0f;
 
-                //not ideal that this has to be a vec4
                 vec3 normTemp;
                 normTemp.x = nb->normals[i];
                 normTemp.y = nb->normals[i + 1];
@@ -156,10 +153,8 @@ int main(){
                 cb->colors[i + 1] = RGBClamp(cb->inputColors[i + 1] * lightScalar);
                 cb->colors[i + 2] = RGBClamp(cb->inputColors[i + 2] * lightScalar);
                 
-                //vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
 
                 perspectiveProjection(&temp, perspectiveProjectionMatrix);
-                renderFlag = frustumCheck(sc->meshes[j]);
                 perspectiveDivide(&temp);
                 NDCToScreenSpace(&temp, 1.0, 100.0, 700, 1000);
                 //vecByMatrix4x4(&temp, screenSpaceMatrix);
@@ -168,10 +163,9 @@ int main(){
                 vb->vertices[i] = temp.x;
                 vb->vertices[i + 1] = temp.y;
                 //we are now w-buffering, maybe a more thorough implementation would be good
-                vb->vertices[i + 2] = temp.w;
-                printf("%f\n", temp.w);
+                vb->vertices[i + 2] = temp.w * 5;
+                // printf("%f\n", temp.w);
             }
-            if(renderFlag == 0)
             rasterize(rc, vb, cb);
         }       
         

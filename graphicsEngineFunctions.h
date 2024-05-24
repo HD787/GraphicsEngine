@@ -129,49 +129,19 @@ void clampW(vec4* v){
 void perspectiveProjection(vec4* v, matrix4x4 matrix){
     vec4 temp = *v;
     vecByMatrix4x4(v, matrix);
-    // if(v->z < 0){
-    //     v->x = temp.x;
-    //     v->y = temp.y;
-    // }
+    if(v->z < 0){
+        v->x = temp.x;
+        v->y = temp.y;
+    }
 }
 
 void perspectiveDivide(vec4* v){
-    // if(v->w < 0.5f && v->w > 0){
-    //     // v->w = 0.5f;
-    //     // v->z /= v->w;
-    //     // v->w = 1.0f;
-    //     // return;
-    //     v->w -= 1.5;
-    //     v->z /= fabsf(v->w);
-    //     printf("one");
-    //     return;
-    // }
-    // if(v->w < 0 && v->w > -1.0) {
-    //     printf("two");
-    //     v->w -= 1.5f;
-    //     v->z /= fabsf(v->w); 
-    //     return;
-    // }
-    if(v->w < 0.5f && v->w > -1.0){
-        v->w -= 1.6f;
-        v->z -= 1.6f;
-        //v->z /= fabsf(v->w); 
-        //return; 
-    }
-    if(v->w < 0) {
-        //v->x /= v->w;
-        v->x /= v->w;
-        v->w = fabsf(v->w);
-        v->y /= v->w;
-        
-        v->z /= v->w; 
-        return;
+    if(v->w < 1.0f){
+        return; 
     }
     v->x /= v->w;
     v->y /= v->w;
     v->z /= v->w;
-    v->w = 1.0f;
-
 }
 
 void NDCToScreenSpace(vec4* v, float nearPlane, float farPlane, int height, int width){
