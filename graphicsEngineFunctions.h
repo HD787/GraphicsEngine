@@ -127,12 +127,11 @@ void clampW(vec4* v){
 }
 
 void perspectiveProjection(vec4* v, matrix4x4 matrix){
-    vec4 temp = *v;
-    vecByMatrix4x4(v, matrix);
-    if(v->z < 0){
-        v->x = temp.x;
-        v->y = temp.y;
+    if(v->z < 1.0f){
+        v->w = v->z;
+        return;
     }
+    vecByMatrix4x4(v, matrix);
 }
 
 void perspectiveDivide(vec4* v){

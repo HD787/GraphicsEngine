@@ -157,7 +157,6 @@ int main(){
                 perspectiveProjection(&temp, perspectiveProjectionMatrix);
                 perspectiveDivide(&temp);
                 NDCToScreenSpace(&temp, 1.0, 100.0, 700, 1000);
-                //vecByMatrix4x4(&temp, screenSpaceMatrix);
                 
                 //create the temporary VBO
                 vb->vertices[i] = temp.x;
