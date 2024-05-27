@@ -121,13 +121,8 @@ void objectSpaceToWorldSpace(vertexBuffer* vb, int scalar){
     }
 }
 
-void clampW(vec4* v){
-    if(v->w < 0.5f && v->w > 0) v->w = 0.5f;
-    if(v->w < 0) v->w = 1.0f;
-}
-
 void perspectiveProjection(vec4* v, matrix4x4 matrix){
-    if(v->z < 1.0f){
+    if(v->z <= 1.0f){
         v->w = v->z;
         return;
     }
@@ -135,7 +130,7 @@ void perspectiveProjection(vec4* v, matrix4x4 matrix){
 }
 
 void perspectiveDivide(vec4* v){
-    if(v->w < 1.0f){
+    if(v->w <= 1.0f){
         return; 
     }
     v->x /= v->w;

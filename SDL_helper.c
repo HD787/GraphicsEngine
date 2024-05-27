@@ -18,7 +18,9 @@ int main(){
     
 
     /*START OF SDL BOILERPLATE*/
-
+    SDL_Init(SDL_INIT_TIMER);
+    Uint32 startTicks, endTicks;
+    double fps;
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window* window;    
     window = SDL_CreateWindow("Display Image",
@@ -88,6 +90,7 @@ int main(){
     int quit = 0;
     SDL_Event e;
     while(!quit){
+        startTicks = SDL_GetTicks();
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
                 quit = 1;
@@ -143,7 +146,7 @@ int main(){
                 vecByMatrix4x4(&temp, translationMatrix);
                 
                 normTemp = dehomogenizeVector(normTempH);
-                normalizeVector(&normTemp);
+                //normalizeVector(&normTemp);
                 float lightScalar = dotProduct(normTemp, light);
                 lightScalar += 1;
                 if(dotProduct(normTemp, *sc->cameraVector) < -0.2){
@@ -172,7 +175,10 @@ int main(){
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
         cleanRenderContext(rc);
-        //SDL_Delay(30);
+        endTicks = SDL_GetTicks();
+        double interval = (endTicks - startTicks) / 1000.0;
+        fps = 1.0 / interval;
+        printf("FPS: %.2f\n", fps);
     }
     deleteRenderContext(rc);
     //dont forget to free the vertex buffers
