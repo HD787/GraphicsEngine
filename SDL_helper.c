@@ -146,12 +146,12 @@ int main(){
                 vecByMatrix4x4(&temp, translationMatrix);
                 
                 normTemp = dehomogenizeVector(normTempH);
-                //normalizeVector(&normTemp);
+                normalizeVector(&normTemp);
                 float lightScalar = dotProduct(normTemp, light);
                 lightScalar += 1;
-                if(dotProduct(normTemp, *sc->cameraVector) < -0.2){
-                    vb->indexBuffer[i/3] = 0;
-                }else vb->indexBuffer[i/3] = 1;
+                // if(dotProduct(normTemp, *sc->cameraVector) < -0.2){
+                //     vb->indexBuffer[i/3] = 0;
+                // }else vb->indexBuffer[i/3] = 1;
                 cb->colors[i] = RGBClamp(cb->inputColors[i] * lightScalar);
                 cb->colors[i + 1] = RGBClamp(cb->inputColors[i + 1] * lightScalar);
                 cb->colors[i + 2] = RGBClamp(cb->inputColors[i + 2] * lightScalar);
