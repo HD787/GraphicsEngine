@@ -19,7 +19,9 @@ int main(){
 
     /*START OF SDL BOILERPLATE*/
     SDL_Init(SDL_INIT_TIMER);
-    Uint32 startTicks, endTicks;
+    Uint32 presentStartTicks, presentEndTicks, 
+           vertexStartTicks, vertexEndTicks,
+           rasterStartTicks, rasterEndTicks;
     double fps;
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window* window;    
@@ -90,7 +92,7 @@ int main(){
     int quit = 0;
     SDL_Event e;
     while(!quit){
-        startTicks = SDL_GetTicks();
+        //startTicks = SDL_GetTicks();
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
                 quit = 1;
@@ -116,6 +118,7 @@ int main(){
             vertexBuffer* vb = sc->meshes[j]->vb;
             colorBuffer* cb = sc->meshes[j]->cb;
             normalBuffer* nb = sc->meshes[j]->nb;
+            vertexStartTicks = SDL_GetTicks();
             for(int i = 0; i < vb->length; i += 3){
                 
                 vec4 temp;
@@ -130,7 +133,6 @@ int main(){
                 normTemp.y = nb->normals[i + 1];
                 normTemp.z = nb->normals[i + 2];
 
-                
                 vec4 normTempH = homogenizeVector(normTemp);
                 createRotationMatrixX(angleX, rotationMatrixX);
                 createRotationMatrixY(angleY, rotationMatrixY);
@@ -144,19 +146,19 @@ int main(){
 
                 createTranslationMatrix(mx, my, mz, translationMatrix);
                 vecByMatrix4x4(&temp, translationMatrix);
-                
+               
+
                 normTemp = dehomogenizeVector(normTempH);
                 normalizeVector(&normTemp);
                 float lightScalar = dotProduct(normTemp, light);
                 lightScalar += 1;
-                // if(dotProduct(normTemp, *sc->cameraVector) < -0.2){
-                //     vb->indexBuffer[i/3] = 0;
-                // }else vb->indexBuffer[i/3] = 1;
+                if(dotProduct(normTemp, *sc->cameraVector) < -0.2){
+                    vb->indexBuffer[i/3] = 0;
+                }else vb->indexBuffer[i/3] = 1;
                 cb->colors[i] = RGBClamp(cb->inputColors[i] * lightScalar);
                 cb->colors[i + 1] = RGBClamp(cb->inputColors[i + 1] * lightScalar);
                 cb->colors[i + 2] = RGBClamp(cb->inputColors[i + 2] * lightScalar);
                 
-
                 perspectiveProjection(&temp, perspectiveProjectionMatrix);
                 perspectiveDivide(&temp);
                 NDCToScreenSpace(&temp, 1.0, 100.0, 700, 1000);
@@ -168,17 +170,26 @@ int main(){
                 vb->vertices[i + 2] = temp.w * 5;
                 // printf("%f\n", temp.w);
             }
+            vertexEndTicks = SDL_GetTicks();
+            rasterStartTicks = SDL_GetTicks();
             rasterize(rc, vb, cb);
+            rasterEndTicks = SDL_GetTicks();
         }       
-        
+        presentStartTicks = SDL_GetTicks();
         SDL_UpdateTexture(texture, NULL, rc->frameBuffer, rc->width * 3);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
         cleanRenderContext(rc);
-        endTicks = SDL_GetTicks();
-        double interval = (endTicks - startTicks) / 1000.0;
-        fps = 1.0 / interval;
-        printf("FPS: %.2f\n", fps);
+        presentEndTicks = SDL_GetTicks();
+        //endTicks = SDL_GetTicks();
+
+        // Uint32 vertexInterval = vertexEndTicks - vertexStartTicks;
+        // Uint32 rasterInterval = rasterEndTicks - rasterStartTicks;
+        // Uint32 presentInterval = presentEndTicks - presentStartTicks;
+        // printf("vertex: %d, raster: %d, present: %d\n", vertexInterval, rasterInterval, presentInterval);
+        // double interval = (endTicks - startTicks) / 1000.0;
+        // fps = 1.0 / interval;
+        // printf("FPS: %.2f\n", fps);
     }
     deleteRenderContext(rc);
     //dont forget to free the vertex buffers
