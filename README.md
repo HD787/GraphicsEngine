@@ -1,0 +1,1 @@
+This repository encapsulates all the libraries I've made for 3D rendering, in order to run, compile one of the included demos, they both rely on SDL for windowing and input, so download and link against SDL
