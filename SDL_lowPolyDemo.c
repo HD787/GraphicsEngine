@@ -44,7 +44,6 @@ int main(){
 
 
     object* obj = parseNoMTL("lowPolyWorld.obj");
-    printf("%i",obj->faceCount);
     vertexBuffer* vb0 = createVertexBuffer(obj->faceCount * 9);
     memcpy(vb0->inputVertices, obj->faces, sizeof(float) * obj->faceCount * 9);
     matrix4x4 prescale, center;
@@ -162,7 +161,10 @@ int main(){
                 perspectiveProjection(&temp, perspectiveProjectionMatrix);
                 perspectiveDivide(&temp);
                 NDCToScreenSpace(&temp, 1.0, 100.0, 700, 1000);
-                
+                if(temp.x > rc->width) temp.x = rc->width + 1;
+                if(temp.x < 0) temp.x = -1;
+                if(temp.y > rc->height) temp.y = rc->height + 1;
+                if(temp.y < 0) temp.y =  -1;
                 //create the temporary VBO
                 vb->vertices[i] = temp.x;
                 vb->vertices[i + 1] = temp.y;
