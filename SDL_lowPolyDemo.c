@@ -18,11 +18,6 @@ int main(){
     
 
     /*START OF SDL BOILERPLATE*/
-    SDL_Init(SDL_INIT_TIMER);
-    Uint32 presentStartTicks, presentEndTicks, 
-           vertexStartTicks, vertexEndTicks,
-           rasterStartTicks, rasterEndTicks;
-    double fps;
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window* window;    
     window = SDL_CreateWindow("Display Image",
@@ -43,9 +38,10 @@ int main(){
     /*END OF SDL BOILERPLATE*/
 
 
-    object* obj = parseNoMTL("lowPolyWorld.obj");
+    object* obj = parseNoMTL("forest-pond.obj");
     vertexBuffer* vb0 = createVertexBuffer(obj->faceCount * 9);
     memcpy(vb0->inputVertices, obj->faces, sizeof(float) * obj->faceCount * 9);
+    printf("%d", obj->faceCount);
     matrix4x4 prescale, center;
     
 
@@ -91,7 +87,6 @@ int main(){
     int quit = 0;
     SDL_Event e;
     while(!quit){
-        //startTicks = SDL_GetTicks();
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
                 quit = 1;
@@ -117,7 +112,6 @@ int main(){
             vertexBuffer* vb = sc->meshes[j]->vb;
             colorBuffer* cb = sc->meshes[j]->cb;
             normalBuffer* nb = sc->meshes[j]->nb;
-            vertexStartTicks = SDL_GetTicks();
             for(int i = 0; i < vb->length; i += 3){
                 
                 vec4 temp;
@@ -151,7 +145,7 @@ int main(){
                 normalizeVector(&normTemp);
                 float lightScalar = dotProduct(normTemp, light);
                 lightScalar += 1;
-                if(dotProduct(normTemp, *sc->cameraVector) < -0.2){
+                if(dotProduct(normTemp, *sc->cameraVector) < -0.5){
                     vb->indexBuffer[i/3] = 0;
                 }else vb->indexBuffer[i/3] = 1;
                 cb->colors[i] = RGBClamp(cb->inputColors[i] * lightScalar);
@@ -161,10 +155,6 @@ int main(){
                 perspectiveProjection(&temp, perspectiveProjectionMatrix);
                 perspectiveDivide(&temp);
                 NDCToScreenSpace(&temp, 1.0, 100.0, 700, 1000);
-                // if(temp.x > rc->width) temp.x = rc->width + 1;
-                // if(temp.x < 0) temp.x = -1;
-                // if(temp.y > rc->height) temp.y = rc->height + 1;
-                // if(temp.y < 0) temp.y =  -1;
                 //create the temporary VBO
                 vb->vertices[i] = temp.x;
                 vb->vertices[i + 1] = temp.y;
@@ -172,26 +162,12 @@ int main(){
                 vb->vertices[i + 2] = temp.w * 5;
                 // printf("%f\n", temp.w);
             }
-            vertexEndTicks = SDL_GetTicks();
-            rasterStartTicks = SDL_GetTicks();
             rasterize(rc, vb, cb);
-            rasterEndTicks = SDL_GetTicks();
         }       
-        presentStartTicks = SDL_GetTicks();
         SDL_UpdateTexture(texture, NULL, rc->frameBuffer, rc->width * 3);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
         cleanRenderContext(rc);
-        presentEndTicks = SDL_GetTicks();
-        //endTicks = SDL_GetTicks();
-
-        // Uint32 vertexInterval = vertexEndTicks - vertexStartTicks;
-        // Uint32 rasterInterval = rasterEndTicks - rasterStartTicks;
-        // Uint32 presentInterval = presentEndTicks - presentStartTicks;
-        // printf("vertex: %d, raster: %d, present: %d\n", vertexInterval, rasterInterval, presentInterval);
-        // double interval = (endTicks - startTicks) / 1000.0;
-        // fps = 1.0 / interval;
-        // printf("FPS: %.2f\n", fps);
     }
     deleteRenderContext(rc);
     //dont forget to free the vertex buffers
