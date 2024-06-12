@@ -159,7 +159,7 @@ int main(){
                 vb->vertices[i] = temp.x;
                 vb->vertices[i + 1] = temp.y;
                 //we are now w-buffering, maybe a more thorough implementation would be good
-                vb->vertices[i + 2] = temp.w * 5;
+                vb->vertices[i + 2] = temp.w * 25;
                 // printf("%f\n", temp.w);
             }
             rasterize(rc, vb, cb);
