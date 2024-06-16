@@ -38,7 +38,7 @@ int main(){
     /*END OF SDL BOILERPLATE*/
 
 
-    object* obj = parseNoMTL("forest-pond.obj");
+    object* obj = parseNoMTL("forestPondFixed.obj");
     vertexBuffer* vb0 = createVertexBuffer(obj->faceCount * 9);
     memcpy(vb0->inputVertices, obj->faces, sizeof(float) * obj->faceCount * 9);
     printf("%d", obj->faceCount);
