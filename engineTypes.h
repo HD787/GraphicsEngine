@@ -26,3 +26,12 @@ typedef struct{
     int length;
     //int currentLength;
 }scene;
+
+typedef struct{
+    float translateX;
+    float translateY;
+    float translateZ;
+    float rotateX;
+    float rotateY;
+    float rotateZ;
+}transformSpec;
