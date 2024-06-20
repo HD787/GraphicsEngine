@@ -4,6 +4,10 @@
 void transform(transformSpec* ts, scene* sc, vertexBuffer* vb, colorBuffer* cb, normalBuffer* nb){
     matrix4x4 rotationMatrixX, rotationMatrixY, rotationMatrixZ, translationMatrix, scalingMatrix, perspectiveProjectionMatrix, screenSpaceMatrix;
     vec3 light; light.x = 0; light.y = -1; light.z = 0;
+    createRotationMatrixX(ts->rotateX, rotationMatrixX);
+    createRotationMatrixY(ts->rotateY, rotationMatrixY);
+    createRotationMatrixZ(ts->rotateZ, rotationMatrixZ);
+    createTranslationMatrix(ts->translateX, ts->translateY, ts->translateZ, translationMatrix);
     createPerspectiveProjectionMatrix(45.0, 1.0, 10.0, 1000.0/700.0, perspectiveProjectionMatrix);
     for(int i = 0; i < vb->length; i += 3){ 
         vec4 temp;
@@ -19,19 +23,15 @@ void transform(transformSpec* ts, scene* sc, vertexBuffer* vb, colorBuffer* cb, 
         normTemp.z = nb->normals[i + 2];
 
         vec4 normTempH = homogenizeVector(normTemp);
-        createRotationMatrixX(ts->rotateX, rotationMatrixX);
-        createRotationMatrixY(ts->rotateY, rotationMatrixY);
-        createRotationMatrixZ(ts->rotateZ, rotationMatrixZ);
+        
         vecByMatrix4x4(&temp, rotationMatrixX);
         vecByMatrix4x4(&temp, rotationMatrixY);
         vecByMatrix4x4(&temp, rotationMatrixZ);
         vecByMatrix4x4(&normTempH, rotationMatrixX);
         vecByMatrix4x4(&normTempH, rotationMatrixY);
         vecByMatrix4x4(&normTempH, rotationMatrixZ);
-
-        createTranslationMatrix(ts->translateX, ts->translateY, ts->translateZ, translationMatrix);
-        vecByMatrix4x4(&temp, translationMatrix);
         
+        vecByMatrix4x4(&temp, translationMatrix);
 
         normTemp = dehomogenizeVector(normTempH);
         normalizeVector(&normTemp);
