@@ -25,17 +25,25 @@ void transform(transformSpec* ts, scene* sc, vertexBuffer* vb, colorBuffer* cb, 
         vec4 normTempH = homogenizeVector(normTemp);
         
         vecByMatrix4x4(&temp, rotationMatrixX);
+        
         vecByMatrix4x4(&temp, rotationMatrixY);
         vecByMatrix4x4(&temp, rotationMatrixZ);
+        
         vecByMatrix4x4(&normTempH, rotationMatrixX);
         vecByMatrix4x4(&normTempH, rotationMatrixY);
         vecByMatrix4x4(&normTempH, rotationMatrixZ);
         
         vecByMatrix4x4(&temp, translationMatrix);
+        
+        perspectiveProjection(&temp, perspectiveProjectionMatrix);
+        //
 
+        // 
         normTemp = dehomogenizeVector(normTempH);
         normalizeVector(&normTemp);
         float lightScalar = dotProduct(normTemp, light);
+        //printf("%f, %f, %f\n", normTemp.x, normTemp.y, normTemp.z);
+        //printf("%f\n", lightScalar);
         lightScalar += 1;
         if(dotProduct(normTemp, *sc->cameraVector) < -0.5){
             vb->indexBuffer[i/3] = 0;
@@ -44,9 +52,12 @@ void transform(transformSpec* ts, scene* sc, vertexBuffer* vb, colorBuffer* cb, 
         cb->colors[i + 1] = RGBClamp(cb->inputColors[i + 1] * lightScalar);
         cb->colors[i + 2] = RGBClamp(cb->inputColors[i + 2] * lightScalar);
         
-        perspectiveProjection(&temp, perspectiveProjectionMatrix);
+        
+        
         perspectiveDivide(&temp);
+        
         NDCToScreenSpace(&temp, 1.0, 100.0, 700, 1000);
+        //printf("%f, %f, %f, %f\n", temp.x, temp.y, temp.z, temp.w);
         //create the temporary VBO
         vb->vertices[i] = temp.x;
         vb->vertices[i + 1] = temp.y;
