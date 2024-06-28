@@ -2,12 +2,12 @@
 //clang SDL_helper.c -o main -I/opt/homebrew/cellar/sdl2/2.28.4/include/sdl2 -L/opt/homebrew/cellar/sdl2/2.28.4/lib -lSDL2
 #include <SDL.h>
 #include <string.h>
-#include "raster/rasterizer.h"
-#include "3Dmath/operations.h"
+#include "raster/rasterizer.c"
+#include "3Dmath/operations.c"
 #include "engineTypes.h"
-#include "graphicsEngineFunctions.h"
-#include "commonCoords.h"
-#include "OBJParser/parser.h"
+#include "graphicsEngineFunctions.c"
+#include "commonCoords.c"
+#include "OBJParser/parser.c"
 
 #define TRANSLATION_SPEED 0.5f
 #define ANGLE_INCREMENT 1.0f

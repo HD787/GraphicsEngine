@@ -23,6 +23,7 @@ typedef struct{
     mesh** meshes;
     char* indexBuffer;
     vec3* cameraVector;
+    vec3* lightVector;
     int length;
     //int currentLength;
 }scene;
@@ -35,3 +36,11 @@ typedef struct{
     float rotateY;
     float rotateZ;
 }transformSpec;
+
+//this contains all data in one struct
+//ideally this should simplify the javaScript part
+typedef struct{
+    scene* sc;
+    renderContext* rc;
+    transformSpec* ts;
+}webContext;

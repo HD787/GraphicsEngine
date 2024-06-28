@@ -18,7 +18,7 @@
 int main(){
 
 
-    renderContext* rc = createRenderContext(1000, 700);
+    renderContext* rc = createRenderContext(1500, 1000);
     
 
     /*START OF SDL BOILERPLATE*/
@@ -72,7 +72,7 @@ int main(){
     transformSpec* transformations = malloc(sizeof(transformSpec));
     transformations->translateX = 0;
     transformations->translateY = 0;
-    transformations->translateZ = 0;
+    transformations->translateZ = 20;
     transformations->rotateX = 180.0;
     transformations->rotateY = 0.0;
     transformations->rotateZ = 0.0;
