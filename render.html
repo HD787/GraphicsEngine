@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>graphics</title>
+</head>
+
+<body>
+    <canvas id="myCanvas"></canvas>
+    <script src="WASM_forestDemo.js"></script>
+    <script src="render.js"></script>
+    <script>
+        // Wait for the Wasm module to be instantiated
+        var wcPtr;
+        //var initialize, renderPass, getFrameBuffer;
+
+        Module.onRuntimeInitialized = () => { 
+            const canvas = document.getElementById('myCanvas');
+            initialize = Module._initialize;
+            renderPass = Module._renderPass; 
+            getFrameBuffer = Module._getFrameBuffer;
+
+            
+
+            wcPtr = initialize(canvas.height, canvas.width);
+            const pixelDataPtr = getFrameBuffer(wcPtr);
+            const pixelData = new Uint8ClampedArray(Module.HEAPU8.buffer, pixelDataPtr, canvas.width * canvas.height * 4);
+            //const canvas = document.getElementById('myCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            const imageData = new ImageData(pixelData, canvas.width, canvas.height);
+            ctx.putImageData(imageData, 0, 0);
+            setTimeout(() => {}, 2000);
+            
+
+            renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, 60.0, 45.0);
+            //const imageData = new ImageData(pixelData, canvas.width, canvas.height);
+            ctx.putImageData(imageData, 0, 0);
+            
+            //draw(wcPtr);
+        };
+
+        
+
+
+
+        // document.addEventListener('keydown', (event) => {
+        //     switch(event.key) {
+        //         case 'ArrowUp':
+        //             console.log(wcPtr);
+        //             draw(wcPtr, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+        //             break;
+
+        //         case 'ArrowDown':
+        //             draw(wcPtr, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0);
+        //             break;
+
+        //         case 'ArrowLeft':
+        //             draw(wcPtr, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+        //             break;
+
+        //         case 'ArrowRight':
+        //             draw(wcPtr, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0);
+        //             break;
+
+        //         default:
+        //             console.log(`Key pressed: ${event.key}`);
+        //     }
+        // });
+
+    </script>
+</body>
+</html>
