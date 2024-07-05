@@ -8,8 +8,8 @@
 #include "3Dmath/operations.c"
 #include "engineTypes.h"
 #include "graphicsEngineFunctions.c"
-//#include "graphicsEngineTransforms.c"
-#include "NEON_graphicsEngineTransforms.c"
+#include "graphicsEngineTransforms.c"
+//#include "NEON_graphicsEngineTransforms.c"
 #include "commonCoords.c"
 #include "OBJParser/parser.c"
 
@@ -18,7 +18,7 @@
 int main(){
 
 
-    renderContext* rc = createRenderContext(1500, 1000);
+    renderContext* rc = createRenderContext(900, 700);
     
 
     /*START OF SDL BOILERPLATE*/

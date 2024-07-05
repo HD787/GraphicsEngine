@@ -1,7 +1,7 @@
 //this may be best as designated for user input
 //there is a reason they use programmable vertex shaders
 //this could be quite restrictive
-void transform(transformSpec* ts, scene* sc, vertexBuffer* vb, colorBuffer* cb, normalBuffer* nb){
+void transform(renderContext* rc, transformSpec* ts, scene* sc, vertexBuffer* vb, colorBuffer* cb, normalBuffer* nb){
     matrix4x4 rotationMatrixX, rotationMatrixY, rotationMatrixZ, translationMatrix, scalingMatrix, perspectiveProjectionMatrix, screenSpaceMatrix;
     vec3 light; light.x = 0; light.y = -1; light.z = 0;
     createRotationMatrixX(ts->rotateX, rotationMatrixX);
@@ -36,9 +36,7 @@ void transform(transformSpec* ts, scene* sc, vertexBuffer* vb, colorBuffer* cb, 
         vecByMatrix4x4(&temp, translationMatrix);
         
         perspectiveProjection(&temp, perspectiveProjectionMatrix);
-        //
 
-        // 
         normTemp = dehomogenizeVector(normTempH);
         normalizeVector(&normTemp);
         float lightScalar = dotProduct(normTemp, light);
@@ -55,8 +53,7 @@ void transform(transformSpec* ts, scene* sc, vertexBuffer* vb, colorBuffer* cb, 
         
         
         perspectiveDivide(&temp);
-        
-        NDCToScreenSpace(&temp, 1.0, 100.0, 700, 1000);
+        NDCToScreenSpace(&temp, 1.0, 100.0, rc->height, rc->width);
         //printf("%f, %f, %f, %f\n", temp.x, temp.y, temp.z, temp.w);
         //create the temporary VBO
         vb->vertices[i] = temp.x;

@@ -1,13 +1,13 @@
 //I will do literally anything but use a makefile i guess
-//clang SDL_helper.c -o main -I/opt/homebrew/cellar/sdl2/2.28.4/include/sdl2 -L/opt/homebrew/cellar/sdl2/2.28.4/lib -lSDL2
+//clang SDL_cubeDemo.c -o main -I/opt/homebrew/cellar/sdl2/2.28.4/include/sdl2 -L/opt/homebrew/cellar/sdl2/2.28.4/lib -lSDL2
 #include <SDL.h>
 #include <string.h>
-#include "raster/rasterizer.h"
-#include "3Dmath/operations.h"
+#include "raster/rasterizer.c"
+#include "3Dmath/operations.c"
 #include "engineTypes.h"
-#include "graphicsEngineFunctions.h"
-#include "commonCoords.h"
-#include "OBJParser/parser.h"
+#include "graphicsEngineFunctions.c"
+#include "commonCoords.c"
+#include "OBJParser/parser.c"
 
 #define TRANSLATION_SPEED 0.1f
 #define ANGLE_INCREMENT 1.0f
@@ -82,9 +82,9 @@ int main(){
     //movement variables
     float mx = 0;
     float my = 0;
-    float mz = 0;
+    float mz = 5;
     float angleX = 0.0;
-    float angleY = 90.0;
+    float angleY = 0.0;
     float angleZ = 0.0;
 
     //update matrices
@@ -129,7 +129,6 @@ int main(){
             colorBuffer* cb = sc->meshes[j]->cb;
             normalBuffer* nb = sc->meshes[j]->nb;
             //im guessing that using the index buffer will be better architecture;
-            int renderFlag = 0;
             for(int i = 0; i < vb->length; i += 3){
                 
                 vec4 temp;
@@ -173,21 +172,19 @@ int main(){
                 
                 //vecByMatrix4x4(&temp, perspectiveProjectionMatrix);
                 perspectiveProjection(&temp, perspectiveProjectionMatrix);
-                renderFlag = frustumCheck(sc->meshes[j]);
 
                 perspectiveDivide(&temp);
 
-                expandDepthRange(&temp, -1.0f, 2.0f);
-                vecByMatrix4x4(&temp, screenSpaceMatrix);
+                //expandDepthRange(&temp, -1.0f, 2.0f);
+                NDCToScreenSpace(&temp, 1.0, 100.0, 700, 1000);
                 
                 //create the temporary VBO
                 vb->vertices[i] = temp.x;
                 vb->vertices[i + 1] = temp.y;
-                vb->vertices[i + 2] = temp.z;
-                printf("%f\n", temp.z);
+                vb->vertices[i + 2] = temp.w * 20;
+                printf("%f : %f\n", temp.w, temp.z);
                 //printf("%i, %d, %d\n", cb->inputColors[i], cb->inputColors[i + 1], cb->inputColors[i + 2]);
             }
-            if(renderFlag == 0)
             rasterize(rc, vb, cb);
         }       
         
