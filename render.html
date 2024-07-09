@@ -7,68 +7,76 @@
 </head>
 
 <body>
-    <canvas id="myCanvas"></canvas>
+    <canvas id="myCanvas" repetition="no-repeat"></canvas>
     <script src="WASM_forestDemo.js"></script>
     <script src="render.js"></script>
     <script>
         // Wait for the Wasm module to be instantiated
         var wcPtr;
-        //var initialize, renderPass, getFrameBuffer;
+        var initialize, renderPass, getFrameBuffer, ctx, imageData;
+        const canvas = document.getElementById('myCanvas');
+        canvas.width = 800; // Set width to 800 pixels
+        canvas.height = 600;
 
         Module.onRuntimeInitialized = () => { 
-            const canvas = document.getElementById('myCanvas');
+            
             initialize = Module._initialize;
             renderPass = Module._renderPass; 
             getFrameBuffer = Module._getFrameBuffer;
 
             
 
-            wcPtr = initialize(canvas.height, canvas.width);
+            wcPtr = initialize(canvas.width, canvas.height);
             const pixelDataPtr = getFrameBuffer(wcPtr);
             const pixelData = new Uint8ClampedArray(Module.HEAPU8.buffer, pixelDataPtr, canvas.width * canvas.height * 4);
             //const canvas = document.getElementById('myCanvas');
-            const ctx = canvas.getContext('2d');
+            ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            console.log("1:", wcPtr);
             renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-            const imageData = new ImageData(pixelData, canvas.width, canvas.height);
-            ctx.putImageData(imageData, 0, 0);
-            setTimeout(() => {}, 2000);
+            imageData = new ImageData(pixelData, canvas.width, canvas.height);
             
 
-            renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, 60.0, 45.0);
-            //const imageData = new ImageData(pixelData, canvas.width, canvas.height);
-            ctx.putImageData(imageData, 0, 0);
+            console.log("2:", wcPtr);
             
-            //draw(wcPtr);
+            //const imageData = new ImageData(pixelData, canvas.width, canvas.height);
+
+
+
+            ctx.putImageData(imageData, 0, 0);
+            // for(i = 0; i < 10000; i ++){
+            //     renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 + i);
+            //     ctx.putImageData(imageData, 0, 0);
+            // }
+            
         };
 
-        
+        document.addEventListener('keydown', (event) => {
+            switch(event.key) {
+                case 'ArrowUp':
+                    renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+                    ctx.putImageData(imageData, 0, 0);
+                    break;
 
+                case 'ArrowDown':
+                    renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0);
+                    ctx.putImageData(imageData, 0, 0);
+                    break;
 
+                case 'ArrowLeft':
+                    renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+                    ctx.putImageData(imageData, 0, 0);
+                    break;
 
-        // document.addEventListener('keydown', (event) => {
-        //     switch(event.key) {
-        //         case 'ArrowUp':
-        //             console.log(wcPtr);
-        //             draw(wcPtr, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
-        //             break;
+                case 'ArrowRight':
+                    renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0);
+                    ctx.putImageData(imageData, 0, 0);
+                    break;
 
-        //         case 'ArrowDown':
-        //             draw(wcPtr, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0);
-        //             break;
-
-        //         case 'ArrowLeft':
-        //             draw(wcPtr, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
-        //             break;
-
-        //         case 'ArrowRight':
-        //             draw(wcPtr, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0);
-        //             break;
-
-        //         default:
-        //             console.log(`Key pressed: ${event.key}`);
-        //     }
-        // });
+                default:
+                    console.log(`Key pressed: ${event.key}`);
+            }
+        });
 
     </script>
 </body>

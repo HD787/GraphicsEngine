@@ -112,7 +112,7 @@ int main(){
             vertexBuffer* vb = sc->meshes[j]->vb;
             colorBuffer* cb = sc->meshes[j]->cb;
             normalBuffer* nb = sc->meshes[j]->nb;
-            transform(transformations, sc, vb, cb, nb);
+            transform(rc, transformations, sc, vb, cb, nb);
             rasterize(rc, vb, cb);
         }       
         SDL_UpdateTexture(texture, NULL, rc->frameBuffer, rc->width * 3);

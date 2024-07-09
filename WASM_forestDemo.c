@@ -45,6 +45,7 @@ void renderPass(webContext* wc, float translateX, float translateY, float transl
     wc->ts->rotateX += rotateX;
     wc->ts->rotateY += rotateY;
     wc->ts->rotateZ += rotateZ;
+    // printf(" %f\n ", wc->sc->meshes[0]->vb->inputVertices[0]);
     transform(wc->rc, wc->ts, wc->sc, wc->sc->meshes[0]->vb, wc->sc->meshes[0]->cb, wc->sc->meshes[0]->nb);
     rasterize_RGBA(wc->rc, wc->sc->meshes[0]->vb, wc->sc->meshes[0]->cb);
 }
@@ -61,10 +62,10 @@ uint8_t* getFrameBuffer(webContext* wc){
 //     webContext* wc = initialize(100, 100);
 //     renderPass(wc, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 //     renderPass(wc, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-//     unsigned char* ptr = getFrameBuffer(wc);
+//     // unsigned char* ptr = getFrameBuffer(wc);
 //     renderPass(wc, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-//     for(int i = 0; i < wc->rc->width * wc->rc->height * 4; i+=4){
-//         if(ptr[i] != 0)
-//         printf(" %i, %i, %i, %i, : %i\n ", ptr[i], ptr[i + 1], ptr[i + 2], ptr[i + 3], i);
+//     for(int i = 0; i < wc->sc->meshes[0]->vb->length; i++){
+//         //if(wc->sc->meshes[0]->vb->inputVertices[i] == -1000000)
+//         printf(" %f : %p\n ", wc->sc->meshes[0]->vb->inputVertices[i], wc->sc->meshes[0]->vb->inputVertices + i);
 //     }
 // } 
