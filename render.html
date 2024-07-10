@@ -39,43 +39,28 @@
 
             console.log("2:", wcPtr);
             
-            //const imageData = new ImageData(pixelData, canvas.width, canvas.height);
-
-
-
             ctx.putImageData(imageData, 0, 0);
-            // for(i = 0; i < 10000; i ++){
-            //     renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 + i);
-            //     ctx.putImageData(imageData, 0, 0);
-            // }
             
         };
 
         document.addEventListener('keydown', (event) => {
+            let y = 0.0;
+            let z = 0.0;
             switch(event.key) {
                 case 'ArrowUp':
-                    renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
-                    ctx.putImageData(imageData, 0, 0);
-                    break;
+                    y += 1.0;
 
                 case 'ArrowDown':
-                    renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0);
-                    ctx.putImageData(imageData, 0, 0);
-                    break;
+                    y -= 1.0;
 
                 case 'ArrowLeft':
-                    renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-                    ctx.putImageData(imageData, 0, 0);
-                    break;
+                    z += 1.0;
 
                 case 'ArrowRight':
-                    renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0);
-                    ctx.putImageData(imageData, 0, 0);
-                    break;
-
-                default:
-                    console.log(`Key pressed: ${event.key}`);
+                    z -= 1.0;    
             }
+            renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, y, z);
+            ctx.putImageData(imageData, 0, 0);
         });
 
     </script>

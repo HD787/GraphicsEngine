@@ -1,4 +1,4 @@
-//emcc -o WASM_forestDemo.js WASM_forestDemo.c -s EXPORTED_FUNCTIONS='["_initialize", "_renderPass", "_getFrameBuffer"]' -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
+//emcc -o WASM_forestDemo.js WASM_forestDemo.c -s EXPORTED_FUNCTIONS='["_initialize", "_renderPass", "_getFrameBuffer" "_deleteWebContext"]' -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
 #include <string.h>
 #include <emscripten.h>
 #include "raster/rasterizer.c"
@@ -34,6 +34,18 @@ webContext* initialize(int height, int width){
     wc->ts->rotateY = 0.0;
     wc->ts->rotateZ = 0.0;
     return wc;
+}
+
+EMSCRIPTEN_KEEPALIVE
+webContext* initializeFromObj(int height, int width){
+    webContext* wc = malloc(sizeof(webContext));
+}
+
+EMSCRIPTEN_KEEPALIVE
+void deleteWebContext(webContext* wc){
+    deleteRenderContext(wc->rc);
+    deleteScene(wc->sc);
+    free(wc->ts)
 }
 
 EMSCRIPTEN_KEEPALIVE
