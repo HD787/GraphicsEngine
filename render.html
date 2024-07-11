@@ -5,15 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>graphics</title>
 </head>
+<style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      display: grid;
+      place-items: center;
+    }
 
+    canvas {
+      border: 1px solid black; /* Optional, for visual reference */
+    }
+  </style>
+<div>
+    <button id="loadForest"> load forest </button>
+    <button id="loadCube"> load cube </button>
+</div>
 <body>
     <canvas id="myCanvas" repetition="no-repeat"></canvas>
     <script src="WASM_forestDemo.js"></script>
     <script src="render.js"></script>
     <script>
         // Wait for the Wasm module to be instantiated
-        var wcPtr;
-        var initialize, renderPass, getFrameBuffer, ctx, imageData;
+        var wcPtr, ctx, imageData;
+        var initialize, renderPass, getFrameBuffer, initializeFromObj, deleteWebContext;
+        var rx = 0.0, ry = 0.0, rz = 0.0;
         const canvas = document.getElementById('myCanvas');
         canvas.width = 800; // Set width to 800 pixels
         canvas.height = 600;
@@ -21,8 +37,10 @@
         Module.onRuntimeInitialized = () => { 
             
             initialize = Module._initialize;
+            initializeFromObj = Module._initializeFromObj;
             renderPass = Module._renderPass; 
             getFrameBuffer = Module._getFrameBuffer;
+            deleteWebContext = Module._deleteWebContext;
 
             
 
@@ -43,24 +61,28 @@
             
         };
 
+        const keyActions = {
+            'ArrowUp': () => ry += 1.0,
+            'ArrowDown': () => ry -= 1.0,
+            'ArrowLeft': () => rz += 1.0,
+            'ArrowRight': () => rz -= 1.0
+        };
+
         document.addEventListener('keydown', (event) => {
-            let y = 0.0;
-            let z = 0.0;
-            switch(event.key) {
-                case 'ArrowUp':
-                    y += 1.0;
-
-                case 'ArrowDown':
-                    y -= 1.0;
-
-                case 'ArrowLeft':
-                    z += 1.0;
-
-                case 'ArrowRight':
-                    z -= 1.0;    
+            
+            if (keyActions[event.key]) {
+                keyActions[event.key]();
             }
-            renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, y, z);
+            renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, ry, rz);
+            //think of a better way to do this
+            ry = 0.0; rz = 0.0;
             ctx.putImageData(imageData, 0, 0);
+        });
+
+        document.getElementById('loadForest').addEventListener('click', function() {
+            deleteWebContext(wcPtr);
+            wcPtr = initializeFromObj(canvas.width, canvas.height);
+            renderPass(wcPtr, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         });
 
     </script>
