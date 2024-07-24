@@ -35,6 +35,8 @@ typedef struct{
     float rotateX;
     float rotateY;
     float rotateZ;
+    float explodeScalar;
+    float* matrixArray;
 }transformSpec;
 
 //this contains all data in one struct
