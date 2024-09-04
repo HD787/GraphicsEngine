@@ -47,3 +47,10 @@ typedef struct{
     renderContext* rc;
     transformSpec* ts;
 }webContext;
+
+typedef struct{
+    cl_context context;
+    cl_program program;
+    cl_command_queue commandQueue;
+    cl_kernel* kernels;
+}OpenClResources;
