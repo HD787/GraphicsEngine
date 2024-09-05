@@ -40,6 +40,8 @@ typedef struct{
     int matrixArrayLength;
 }transformSpec;
 
+//im unsure about the idea of having structs that are
+
 //this contains all data in one struct
 //ideally this should simplify the javaScript part
 typedef struct{
@@ -48,9 +50,11 @@ typedef struct{
     transformSpec* ts;
 }webContext;
 
+//this is exclusive to OpenCL implementations
 typedef struct{
     cl_context context;
     cl_program program;
     cl_command_queue commandQueue;
     cl_kernel* kernels;
+    int kernelCount
 }OpenClResources;
