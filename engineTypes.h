@@ -36,6 +36,12 @@ typedef struct{
     float rotateY;
     float rotateZ;
     float explodeScalar;
+    matrix4x4 rotationX;
+    matrix4x4 rotationY;
+    matrix4x4 rotationz;
+    matrix4x4 translation;
+    matrix4x4 perspectiveProjection;
+    //might keep this for misc matrices
     float* matrixArray;
     int matrixArrayLength;
 }transformSpec;
