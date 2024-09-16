@@ -59,11 +59,11 @@ typedef struct{
 //this is exclusive to OpenCL implementations
 typedef struct{
     cl_context context;
+    cl_device_id deviceId;
     cl_program program;
     cl_command_queue commandQueue;
-    cl_kernel vertexKernel;
-    cl_kernel normalKernel;
+    cl_kernel kernel;
     //i might come back to this approach but for now im not loving it
     // cl_kernel* kernels;
     //int kernelCount
-}OpenClResources;
+}openClResources;
