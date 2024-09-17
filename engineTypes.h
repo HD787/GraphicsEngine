@@ -57,13 +57,21 @@ typedef struct{
 }webContext;
 
 //this is exclusive to OpenCL implementations
-typedef struct{
-    cl_context context;
-    cl_device_id deviceId;
-    cl_program program;
-    cl_command_queue commandQueue;
-    cl_kernel kernel;
-    //i might come back to this approach but for now im not loving it
-    // cl_kernel* kernels;
-    //int kernelCount
-}openClResources;
+
+// typedef struct{
+//     void* context;
+//     void* deviceId;
+//     void*program;
+//     void* commandQueue;
+//     void* kernel;
+//     void* vertexOutput;
+//     void* colorOutput;
+
+//     // cl_context context;
+//     // cl_device_id deviceId;
+//     // cl_program program;
+//     // cl_command_queue commandQueue;
+//     // cl_kernel kernel;
+//     // cl_mem vertexOutput;
+//     // cl_mem colorOutput;
+// }openClResources;
