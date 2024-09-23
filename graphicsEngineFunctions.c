@@ -37,11 +37,6 @@ void generateBoundingBoxDEPRECATED(mesh* msh){
     msh->bb = temp;
 }
 
-
-
-
-
-
 normalBuffer* generateNormals(vertexBuffer* vb){
     normalBuffer* nb = malloc(sizeof(normalBuffer));
     nb->length = vb->length;

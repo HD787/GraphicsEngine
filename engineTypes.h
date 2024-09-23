@@ -38,7 +38,7 @@ typedef struct{
     float explodeScalar;
     matrix4x4 rotationX;
     matrix4x4 rotationY;
-    matrix4x4 rotationz;
+    matrix4x4 rotationZ;
     matrix4x4 translation;
     matrix4x4 perspectiveProjection;
     //might keep this for misc matrices
